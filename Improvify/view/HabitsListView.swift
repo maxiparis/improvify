@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct HabitsListView: View {
-    var habitsManager: HabitsManager
+    @Bindable var habitsManager: HabitsManager
     
     var body: some View {
         NavigationStack {
@@ -29,6 +29,7 @@ struct HabitsListView: View {
                             
                             Spacer()
                             Text(habitsManager.dateString)
+                                .font(.title3)
                                 .onTapGesture {
                                     withAnimation {
                                         habitsManager.goToToday()
@@ -72,25 +73,54 @@ struct HabitsListView: View {
                             }
                         }
                         .onDelete(perform: habitsManager.handleOnDelete)
+//                        .onMove(perform: habitsManager.handleOnMove)
                     }
                 }
                 
                 // Phrase
                 VStack {
+                    
                     Spacer()
-                    Text("Habit is the intersection of knowledge (what to do), skill (how to do), and desire (want to do).")
-                        .padding()
-                    HStack {
-                        Spacer()
-                        Text("- Stephen R. Covey")
+                    VStack {
+                        Text("Habit is the intersection of knowledge (what to do), skill (how to do), and desire (want to do).")
+                            .padding(.horizontal, 20)
+                        HStack {
+                            Spacer()
+                            Text("- Stephen R. Covey")
+                        }
+                        .padding(.horizontal, 20)
                     }
                     .padding()
+                    .background {
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(Color.secondary.opacity(0.1))
+                    }
                 }
+                .foregroundStyle(.secondary)
                 .padding()
                 
             }
             .navigationTitle(Text("Improvify"))
+            
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    EditButton()
+                }
+                
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        habitsManager.presentAddHabitView = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $habitsManager.presentAddHabitView) {
+                AddHabitView(habitManager: habitsManager)
+            }
         }
+        
+        
     }
 }
 

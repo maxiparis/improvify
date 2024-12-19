@@ -26,6 +26,15 @@ class HabitsManager {
         formatter.dateFormat = "EEEE, MMMM d"
         return formatter
     }
+    var timeFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a" // Use 12-hour format with AM/PM
+        formatter.locale = Locale(identifier: "en_US_POSIX") // Set the locale to ensure consistent formatting
+        return formatter
+    }
+    var presentAddHabitView: Bool = false
+    var newHabitName = ""
+    var newHabitTime: Date = Date()
     
     //MARK: - Init
 
@@ -49,6 +58,10 @@ class HabitsManager {
     
     func formatDateString() {
         dateString = dateFormatter.string(from: dateSelected)
+    }
+    
+    func formatTime(from date: Date) -> String {
+        return timeFormatter.string(from: date).lowercased()
     }
     
     func habitIsCompleted(_ habit: Habit) -> Bool {
@@ -128,6 +141,21 @@ class HabitsManager {
             modelContext.delete(removed)
             try? modelContext.save()
         }
+    }
+    
+//    func handleOnMove(from source: IndexSet, to destination: Int) {
+//        habits.move(fromOffsets: source, toOffset: destination)
+//        try? modelContext.save()
+//    }
+    
+    func createNewHabit() {
+        let newHabit = Habit(name: newHabitName, completeBy: formatTime(from: newHabitTime))
+        habits.append(newHabit)
+        
+        modelContext.insert(newHabit)
+        try? modelContext.save()
+        
+        presentAddHabitView = false
     }
 }
 
