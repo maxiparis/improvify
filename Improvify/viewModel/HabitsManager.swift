@@ -51,10 +51,9 @@ class HabitsManager {
         dateString = dateFormatter.string(from: dateSelected)
     }
     
-    func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool{
-        
+    func habitIsCompleted(_ habit: Habit) -> Bool {
         for dateCompleted in habit.completed {
-            if calendar.isDate(date, inSameDayAs: dateCompleted) {
+            if calendar.isDate(dateSelected, inSameDayAs: dateCompleted) {
                 return true
             }
         }
@@ -113,7 +112,7 @@ class HabitsManager {
     
     func handleTappingOnHabit(_ habit: Habit) {
         
-        if habitIsCompleted(habit, on: dateSelected) {
+        if habitIsCompleted(habit) {
             habit.completed.removeAll { date in
                 calendar.isDate(date, inSameDayAs: dateSelected)
             }

@@ -50,8 +50,20 @@ struct HabitsListView: View {
                     Section {
                         ForEach(habitsManager.habits) { habit in
                             HStack {
-                                Image(systemName: habitsManager.habitIsCompleted(habit, on: habitsManager.dateSelected) ? "checkmark.square" : "square")
-                                Text(habit.name)
+                                Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.square" : "square")
+                                    .contentTransition(.symbolEffect(.replace))
+                                    .font(.system(size: 25))
+
+                                Text("\(habit.name) - \(habit.completeBy)")
+                                    .strikethrough(habitsManager.habitIsCompleted(habit))
+                                    .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
+                                
+                                Spacer()
+                                
+                                Image(systemName: "pencil")
+                                    .onTapGesture {
+                                        //TODO: edit
+                                    }
                             }
                             .onTapGesture {
                                 withAnimation {
