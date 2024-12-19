@@ -71,6 +71,7 @@ struct HabitsListView: View {
                                 }
                             }
                         }
+                        .onDelete(perform: habitsManager.handleOnDelete)
                     }
                 }
                 
@@ -81,7 +82,7 @@ struct HabitsListView: View {
                         .padding()
                     HStack {
                         Spacer()
-                        Text("- Stephen R. Covery")
+                        Text("- Stephen R. Covey")
                     }
                     .padding()
                 }

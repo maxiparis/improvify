@@ -120,6 +120,15 @@ class HabitsManager {
             habit.completed.append(dateSelected)
         }
     }
+    
+    func handleOnDelete(at index: IndexSet) {
+        if let position = index.first {
+            let removed = habits.remove(at: position)
+            
+            modelContext.delete(removed)
+            try? modelContext.save()
+        }
+    }
 }
 
 
