@@ -19,6 +19,7 @@ class HabitsManager {
             dateString = dateFormatter.string(from: dateSelected)
         }
     }
+    let calendar = Calendar.current
     var dateString: String = ""
     var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
@@ -51,7 +52,6 @@ class HabitsManager {
     }
     
     func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool{
-        let calendar = Calendar.current
         
         for dateCompleted in habit.completed {
             if calendar.isDate(date, inSameDayAs: dateCompleted) {
@@ -109,6 +109,17 @@ class HabitsManager {
 
     func goToToday() {
         dateSelected = Date()
+    }
+    
+    func handleTappingOnHabit(_ habit: Habit) {
+        
+        if habitIsCompleted(habit, on: dateSelected) {
+            habit.completed.removeAll { date in
+                calendar.isDate(date, inSameDayAs: dateSelected)
+            }
+        } else {
+            habit.completed.append(dateSelected)
+        }
     }
 }
 

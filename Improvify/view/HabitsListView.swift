@@ -55,7 +55,7 @@ struct HabitsListView: View {
                             }
                             .onTapGesture {
                                 withAnimation {
-//                                    HabitsManager.completeHabit(habit)
+                                    habitsManager.handleTappingOnHabit(habit)
                                 }
                             }
                         }
