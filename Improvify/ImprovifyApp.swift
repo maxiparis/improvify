@@ -16,7 +16,7 @@ struct ImprovifyApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(habitsManager: viewModel)
+            HabitsListView(habitsManager: viewModel)
         }
         .modelContainer(container)
     }
