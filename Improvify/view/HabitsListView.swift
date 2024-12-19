@@ -21,17 +21,42 @@ struct HabitsListView: View {
                         HStack {
                             
                             Image(systemName: "arrow.left").onTapGesture {
-                                habitsManager.moveDayBackward()
+                                withAnimation {
+                                    habitsManager.moveDayBackward()
+                                }
                             }
                             
                             
                             Spacer()
                             Text(habitsManager.dateString)
+                                .onTapGesture {
+                                    withAnimation {
+                                        habitsManager.goToToday()
+                                    }
+
+                                }
                             Spacer()
                             
                             Image(systemName: "arrow.right")
                             .onTapGesture {
-                                habitsManager.moveDayForward()
+                                withAnimation {
+                                    habitsManager.moveDayForward()
+                                }
+                            }
+                        }
+                    }
+                    
+                    //MARK: - List of Habits
+                    Section {
+                        ForEach(habitsManager.habits) { habit in
+                            HStack {
+                                Image(systemName: habitsManager.habitIsCompleted(habit, on: habitsManager.dateSelected) ? "checkmark.square" : "square")
+                                Text(habit.name)
+                            }
+                            .onTapGesture {
+                                withAnimation {
+//                                    HabitsManager.completeHabit(habit)
+                                }
                             }
                         }
                     }
@@ -53,5 +78,26 @@ struct HabitsListView: View {
             }
             .navigationTitle(Text("Improvify"))
         }
+    }
+}
+
+
+
+struct iOSCheckboxToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        // 1
+        Button(action: {
+
+            // 2
+            configuration.isOn.toggle()
+
+        }, label: {
+            HStack {
+                // 3
+                Image(systemName: configuration.isOn ? "checkmark.square" : "square")
+
+                configuration.label
+            }
+        })
     }
 }

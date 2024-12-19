@@ -13,6 +13,7 @@ class HabitsManager {
     
     //MARK: - Properties
     private var modelContext: ModelContext
+    var habits: [Habit] = []
     var dateSelected: Date {
         didSet {
             dateString = dateFormatter.string(from: dateSelected)
@@ -29,8 +30,18 @@ class HabitsManager {
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        
+        
         dateSelected = Date()
         formatDateString()
+        
+        fetchData()
+        
+        if habits.isEmpty {
+            print("habits are empty")
+            createDefaultData()
+            fetchData()
+        }
     }
     
     //MARK: - Util
@@ -38,6 +49,45 @@ class HabitsManager {
     func formatDateString() {
         dateString = dateFormatter.string(from: dateSelected)
     }
+    
+    func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool{
+        let calendar = Calendar.current
+        
+        for dateCompleted in habit.completed {
+            if calendar.isDate(date, inSameDayAs: dateCompleted) {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    //MARK: - Data Handling
+    
+    func fetchData() {
+        try? modelContext.save()
+        
+        do {
+            let habitsDescriptot = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.name)])
+            habits = try modelContext.fetch(habitsDescriptot)
+        } catch {
+            print("failed to fetch data")
+        }
+    }
+    
+    func createDefaultData() {
+        let habitsToAdd = [
+            Habit(name: "Do Exercisse", completeBy: "01:00pm", completed: [Date()]),
+            Habit(name: "Pray", completeBy: "08:00am"),
+        ]
+        
+        for habit in habitsToAdd {
+            modelContext.insert(habit)
+        }
+        
+        try? modelContext.save()
+    }
+
 
     
     //MARK: - User Intents
@@ -57,5 +107,11 @@ class HabitsManager {
         }
     }
 
-    
+    func goToToday() {
+        dateSelected = Date()
+    }
 }
+
+
+
+

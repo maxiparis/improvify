@@ -17,8 +17,7 @@ class Habit: Identifiable {
     var tags: [String]
     
 
-    init(id: UUID, name: String, completeBy: String, completed: [Date], tags: [String]) {
-        self.id = id
+    init(name: String, completeBy: String, completed: [Date] = [], tags: [String] = []) {
         self.name = name
         self.completeBy = completeBy
         self.completed = completed
