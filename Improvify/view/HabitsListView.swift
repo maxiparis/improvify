@@ -52,37 +52,37 @@ struct HabitsListView: View {
                         ForEach(habitsManager.habits) { habit in
                             HStack {
                                 Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.square" : "square")
-                                    .contentTransition(.symbolEffect(.replace))
                                     .font(.system(size: 25))
+                                    .onTapGesture {
+                                        withAnimation {
+                                            habitsManager.handleTappingOnHabit(habit)
+                                        }
+                                    }
                                 
                                 Text("\(habit.name) - \(habit.completeBy)")
                                     .strikethrough(habitsManager.habitIsCompleted(habit))
                                     .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
+                                    .onTapGesture {
+                                        //TODO: open graph
+                                    }
                                 
                                 Spacer()
                                 
                                 Image(systemName: "pencil")
                                     .onTapGesture {
                                         //TODO: edit
+                                        habitsManager.habitOnEdit = habit
+                                        habitsManager.presentEditHabitView = true
+
                                     }
                             }
-                            .onTapGesture {
-                                withAnimation {
-                                    habitsManager.handleTappingOnHabit(habit)
-                                }
-                            }
+                            
                         }
                         .onDelete(perform: habitsManager.handleOnDelete)
                         //                        .onMove(perform: habitsManager.handleOnMove)
                     }
                 }
-                .gesture(DragGesture().onEnded { value in
-                    if value.translation.width > 50 {
-                        habitsManager.moveDayForward()
-                    } else if value.translation.width < -50 {
-                        habitsManager.moveDayBackward()
-                    }
-                })
+
                 
                 // Phrase
                 
@@ -123,11 +123,10 @@ struct HabitsListView: View {
             .sheet(isPresented: $habitsManager.presentAddHabitView) {
                 AddHabitView(habitManager: habitsManager)
             }
-            
+            .sheet(isPresented: $habitsManager.presentEditHabitView) {
+                EditHabitView(habitManager: habitsManager)
+            }
         }
-        
-
-        
     }
 }
 

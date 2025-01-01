@@ -32,9 +32,22 @@ class HabitsManager {
         formatter.locale = Locale(identifier: "en_US_POSIX") // Set the locale to ensure consistent formatting
         return formatter
     }
-    var presentAddHabitView: Bool = false
+    
+    var presentAddHabitView = false
     var newHabitName = ""
     var newHabitTime: Date = Date()
+    
+    var presentEditHabitView = false
+    var habitOnEdit: Habit? {
+        didSet {
+            if let habitOnEdit {
+                editHabitName = habitOnEdit.name
+                editHabitTime = createDate(from: habitOnEdit.completeBy) ?? Date()
+            }
+        }
+    }
+    var editHabitName = ""
+    var editHabitTime = Date()
     
     //MARK: - Init
 
@@ -72,6 +85,14 @@ class HabitsManager {
         }
         
         return false
+    }
+    
+    func createDate(from timeString: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mma"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        let date = formatter.date(from: timeString)
+        return date
     }
     
     //MARK: - Data Handling
