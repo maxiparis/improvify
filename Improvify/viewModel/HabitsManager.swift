@@ -178,6 +178,13 @@ class HabitsManager {
         
         presentAddHabitView = false
     }
+    
+    func handleEditHabit() {
+        habitOnEdit!.name = editHabitName
+        habitOnEdit!.completeBy = formatTime(from: editHabitTime)
+        
+        presentEditHabitView = false
+    }
 }
 
 

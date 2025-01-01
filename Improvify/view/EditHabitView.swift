@@ -31,6 +31,7 @@ struct EditHabitView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
                         //TODO: work on here
+                        habitManager.handleEditHabit()
                     }
                 }
                 

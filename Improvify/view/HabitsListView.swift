@@ -51,8 +51,8 @@ struct HabitsListView: View {
                     Section {
                         ForEach(habitsManager.habits) { habit in
                             HStack {
-                                Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.square" : "square")
-                                    .font(.system(size: 25))
+                                Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.circle.fill" : "circle")
+                                    .font(.system(size: 20))
                                     .onTapGesture {
                                         withAnimation {
                                             habitsManager.handleTappingOnHabit(habit)
@@ -70,7 +70,6 @@ struct HabitsListView: View {
                                 
                                 Image(systemName: "pencil")
                                     .onTapGesture {
-                                        //TODO: edit
                                         habitsManager.habitOnEdit = habit
                                         habitsManager.presentEditHabitView = true
 
@@ -79,7 +78,6 @@ struct HabitsListView: View {
                             
                         }
                         .onDelete(perform: habitsManager.handleOnDelete)
-                        //                        .onMove(perform: habitsManager.handleOnMove)
                     }
                 }
 
