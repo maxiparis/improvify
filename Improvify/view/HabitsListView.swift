@@ -64,6 +64,7 @@ struct HabitsListView: View {
                                     .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
                                     .onTapGesture {
                                         //TODO: open graph
+                                        habitsManager.presentGraphView = true
                                     }
                                 
                                 Spacer()
@@ -123,6 +124,9 @@ struct HabitsListView: View {
             }
             .sheet(isPresented: $habitsManager.presentEditHabitView) {
                 EditHabitView(habitManager: habitsManager)
+            }
+            .navigationDestination(isPresented: $habitsManager.presentGraphView) {
+                HabitGraphView()
             }
         }
     }

@@ -49,6 +49,8 @@ class HabitsManager {
     var editHabitName = ""
     var editHabitTime = Date()
     
+    var presentGraphView = false
+    
     //MARK: - Init
 
     init(modelContext: ModelContext) {
