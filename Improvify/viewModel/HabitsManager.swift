@@ -50,6 +50,7 @@ class HabitsManager {
     var editHabitTime = Date()
     
     var presentGraphView = false
+    var graphSelectedHabit: Habit?
     
     //MARK: - Init
 

@@ -9,52 +9,22 @@ import SwiftUI
 import Charts
 
 struct HabitGraphView: View {
+    var manager: HabitGraphManager
     
     var body: some View {
         List {
             Chart {
-                LineMark(
-                    x: .value("Date", Date()),
-                    y: .value("Count", 2)
-                )
-                .interpolationMethod(.catmullRom)
-                .lineStyle(.init(lineWidth: 2))
-                .symbol {
-                    Circle()
-                        .frame(width: 12, height: 12)
-                }
-                
-                LineMark(
-                    x: .value("Date", Calendar.current.date(byAdding: .day, value: 1, to: Date())!),
-                    y: .value("Count", 3)
-                )
-                .interpolationMethod(.catmullRom)
-                .lineStyle(.init(lineWidth: 2))
-                .symbol {
-                    Circle()
-                        .frame(width: 12, height: 12)
-                }
-                
-                LineMark(
-                    x: .value("Date", Calendar.current.date(byAdding: .day, value: 2, to: Date())!),
-                    y: .value("Count", 3)
-                )
-                .interpolationMethod(.catmullRom)
-                .lineStyle(.init(lineWidth: 2))
-                .symbol {
-                    Circle()
-                        .frame(width: 12, height: 12)
-                }
-                
-                LineMark(
-                    x: .value("Date", Calendar.current.date(byAdding: .day, value: 3, to: Date())!),
-                    y: .value("Count", 4)
-                )
-                .interpolationMethod(.catmullRom)
-                .lineStyle(.init(lineWidth: 2))
-                .symbol {
-                    Circle()
-                        .frame(width: 12, height: 12)
+                ForEach(manager.data) { point in
+                    LineMark(
+                        x: .value("Date", point.date),
+                        y: .value("Count", point.value)
+                    )
+//                    .interpolationMethod(.catmullRom)
+//                    .lineStyle(.init(lineWidth: 2))
+//                    .symbol {
+//                        Circle()
+//                            .frame(width: 12, height: 12)
+//                    }
                 }
             }
             .listRowBackground(Color.clear)
@@ -63,7 +33,6 @@ struct HabitGraphView: View {
             .padding()
             
         }
-        .navigationTitle("Report")
-        
+        .navigationTitle(manager.habit.name)
     }
 }

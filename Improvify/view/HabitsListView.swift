@@ -63,7 +63,7 @@ struct HabitsListView: View {
                                     .strikethrough(habitsManager.habitIsCompleted(habit))
                                     .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
                                     .onTapGesture {
-                                        //TODO: open graph
+                                        habitsManager.graphSelectedHabit = habit
                                         habitsManager.presentGraphView = true
                                     }
                                 
@@ -126,7 +126,9 @@ struct HabitsListView: View {
                 EditHabitView(habitManager: habitsManager)
             }
             .navigationDestination(isPresented: $habitsManager.presentGraphView) {
-                HabitGraphView()
+                if let habitSelected = habitsManager.graphSelectedHabit {
+                    HabitGraphView(manager: HabitGraphManager(habit: habitSelected))
+                }
             }
         }
     }
