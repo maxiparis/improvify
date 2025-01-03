@@ -22,6 +22,14 @@ class HabitGraphManager {
         dateFormatter.dateFormat = "MM/dd"
         return dateFormatter
     }
+    var allDataValuesAre0: Bool {
+        for element in data {
+            if element.value != 0 {
+                return false
+            }
+        }
+        return true
+    }
     
     
     //MARK: - Init
@@ -33,28 +41,36 @@ class HabitGraphManager {
     
     //MARK: - Utils
     func generateData() {
-        let calendar = Calendar.current
-        let today = Date()
+        var calendar = Calendar.current
+//        let today = Date()
         var cumulativeCounts: [Int] = []
         var temp: [LineChartElement] = []
+        
+        let currentTimeZone = TimeZone.current
+        calendar.timeZone = currentTimeZone
+        let todayComponents = calendar.dateComponents([.year, .month, .day], from: Date())
 
-        for i in 0..<15 {
-            if let date = calendar.date(byAdding: .day, value: i-15, to: today) {
-                last15days.append(date)
-                let previousDayCount = cumulativeCounts.last ?? 0
-                if habit.completed.contains(where: { calendar.isDate(date, inSameDayAs: $0) }) { //completed on that day
-                    //+1
-                    let thisDayCount = previousDayCount+1
-                    cumulativeCounts.append(thisDayCount)
-                    temp.append(LineChartElement(date: date, value: thisDayCount))
-                } else { //NOT completed on that day
-                    //-1
-                    let thisDayCount = max(previousDayCount-1, 0) //never goes under 0.
-                    cumulativeCounts.append(thisDayCount)
+        // Create today's date (midnight in the current time zone)
+        if let today = calendar.date(from: todayComponents) {
+            for i in 0..<15 {
+                if let date = calendar.date(byAdding: .day, value: i-14, to: today) {
+                    last15days.append(date)
+                    let previousDayCount = cumulativeCounts.last ?? 0
+                    if habit.completed.contains(where: { calendar.isDate(date, inSameDayAs: $0) }) { //completed on that day
+                        //+1
+                        let thisDayCount = previousDayCount+1
+                        cumulativeCounts.append(thisDayCount)
                         temp.append(LineChartElement(date: date, value: thisDayCount))
+                    } else { //NOT completed on that day
+                        //-1
+                        let thisDayCount = max(previousDayCount-1, 0) //never goes under 0.
+                        cumulativeCounts.append(thisDayCount)
+                        temp.append(LineChartElement(date: date, value: thisDayCount))
+                    }
                 }
             }
         }
+
         data = temp
     }
 }

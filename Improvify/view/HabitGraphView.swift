@@ -19,7 +19,7 @@ struct HabitGraphView: View {
                         x: .value("Date", point.date),
                         y: .value("Count", point.value)
                     )
-                    .interpolationMethod(.catmullRom)
+//                    .interpolationMethod(.)
                     //                    .lineStyle(.init(lineWidth: 2))
                     //                    .symbol {
                     //                        Circle()
@@ -37,7 +37,7 @@ struct HabitGraphView: View {
                 }
             }
             .chartYAxis {
-                if manager.data.last?.value == 0 {
+                if manager.allDataValuesAre0 {
                     AxisMarks(values: [0]) //TODO: fix here
                 } else {
                     AxisMarks(values: [0, 3, 6, 9, 12, 15])
