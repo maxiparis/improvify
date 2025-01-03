@@ -8,39 +8,43 @@
 import SwiftUI
 import Charts
 
+let ZERO_VALUE_OFFSET: CGFloat = 150
+
 struct HabitGraphView: View {
     var manager: HabitGraphManager
     
     var body: some View {
         List {
             Chart {
-                ForEach(manager.data) { point in
+                ForEach(manager.data) {
                     LineMark(
-                        x: .value("Date", point.date),
-                        y: .value("Count", point.value)
+                        x: .value("Date", $0.date),
+                        y: .value("Count", $0.value)
                     )
-//                    .interpolationMethod(.)
-                    //                    .lineStyle(.init(lineWidth: 2))
-                    //                    .symbol {
-                    //                        Circle()
-                    //                            .frame(width: 12, height: 12)
-                    //                    }
-                }
-            }
-            .chartXAxis {
-                AxisMarks(values: manager.last15days) { value in
-                    if (value.index % 3 == 0) {
-                        let date = manager.last15days[value.index]
-                        let stringFormatted = manager.formatter.string(from: date)
-                        AxisValueLabel(stringFormatted)
+                    .offset(y: manager.allDataValuesAre0 ? ZERO_VALUE_OFFSET : 0)
+                    .symbol {
+                        Circle()
+                            .frame(width: 5, height: 5)
                     }
                 }
             }
+            .chartXAxis {
+                AxisMarks(preset: .aligned , values: manager.last15days) { value in
+                    if ((value.index+1) % 3 == 0 || value.index == 0) {
+                        let date = manager.last15days[value.index]
+                        let stringFormatted = manager.formatter.string(from: date)
+                        AxisValueLabel(stringFormatted)
+                            .offset(y: 10)
+                    }
+                    AxisGridLine()
+                }
+            }
             .chartYAxis {
-                if manager.allDataValuesAre0 {
-                    AxisMarks(values: [0]) //TODO: fix here
-                } else {
-                    AxisMarks(values: [0, 3, 6, 9, 12, 15])
+                let values0 = [0]
+                let values = [0, 3, 6, 9, 12, 15]
+                AxisMarks(values: manager.allDataValuesAre0 ? values0 : values) { value in
+                    AxisValueLabel("\(values[value.index])").offset(x: 15, y: manager.allDataValuesAre0 ? ZERO_VALUE_OFFSET : 0)
+                    AxisGridLine().offset(y: manager.allDataValuesAre0 ? ZERO_VALUE_OFFSET : 0)
                 }
             }
             .listRowBackground(Color.clear)

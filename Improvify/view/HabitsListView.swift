@@ -13,98 +13,73 @@ struct HabitsListView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                
-                //Main Content
-                List {
-                    Section {
-                        HStack {
-                            
-                            Image(systemName: "arrow.left").onTapGesture {
+            //Main Content
+            List {
+                Section {
+                    HStack {
+                        
+                        Image(systemName: "arrow.left").onTapGesture {
+                            withAnimation {
+                                habitsManager.moveDayBackward()
+                            }
+                        }
+                        
+                        
+                        Spacer()
+                        Text(habitsManager.dateString)
+                            .font(.title3)
+                            .onTapGesture {
                                 withAnimation {
-                                    habitsManager.moveDayBackward()
+                                    habitsManager.goToToday()
+                                }
+                                
+                            }
+                        Spacer()
+                        
+                        Image(systemName: "arrow.right")
+                            .onTapGesture {
+                                withAnimation {
+                                    habitsManager.moveDayForward()
                                 }
                             }
-                            
-                            
-                            Spacer()
-                            Text(habitsManager.dateString)
-                                .font(.title3)
+                    }
+                }
+                
+                //MARK: - List of Habits
+                Section {
+                    ForEach(habitsManager.habits) { habit in
+                        HStack {
+                            Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 20))
                                 .onTapGesture {
                                     withAnimation {
-                                        habitsManager.goToToday()
+                                        habitsManager.handleTappingOnHabit(habit)
                                     }
+                                }
+                            
+                            Text("\(habit.name) - \(habit.completeBy)")
+                                .strikethrough(habitsManager.habitIsCompleted(habit))
+                                .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
+                                .onTapGesture {
+                                    habitsManager.graphSelectedHabit = habit
+                                    habitsManager.presentGraphView = true
+                                }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "pencil")
+                                .onTapGesture {
+                                    habitsManager.habitOnEdit = habit
+                                    habitsManager.presentEditHabitView = true
                                     
                                 }
-                            Spacer()
-                            
-                            Image(systemName: "arrow.right")
-                                .onTapGesture {
-                                    withAnimation {
-                                        habitsManager.moveDayForward()
-                                    }
-                                }
                         }
+                        
                     }
-                    
-                    //MARK: - List of Habits
-                    Section {
-                        ForEach(habitsManager.habits) { habit in
-                            HStack {
-                                Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.circle.fill" : "circle")
-                                    .font(.system(size: 20))
-                                    .onTapGesture {
-                                        withAnimation {
-                                            habitsManager.handleTappingOnHabit(habit)
-                                        }
-                                    }
-                                
-                                Text("\(habit.name) - \(habit.completeBy)")
-                                    .strikethrough(habitsManager.habitIsCompleted(habit))
-                                    .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
-                                    .onTapGesture {
-                                        habitsManager.graphSelectedHabit = habit
-                                        habitsManager.presentGraphView = true
-                                    }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "pencil")
-                                    .onTapGesture {
-                                        habitsManager.habitOnEdit = habit
-                                        habitsManager.presentEditHabitView = true
-
-                                    }
-                            }
-                            
-                        }
-                        .onDelete(perform: habitsManager.handleOnDelete)
-                    }
+                    .onDelete(perform: habitsManager.handleOnDelete)
                 }
-
-                
-                // Phrase
-                
-                VStack {
-                    Spacer()
-                    VStack {
-                        Text("Habit is the intersection of knowledge (what to do), skill (how to do), and desire (want to do).")
-                            .padding(.horizontal, 20)
-                        HStack {
-                            Spacer()
-                            Text("- Stephen R. Covey")
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                    .padding()
-                    .background {
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.secondary.opacity(0.1))
-                    }
-                }
-                .foregroundStyle(.secondary)
-                .padding()
             }
+            
             .navigationTitle(Text("Improvify"))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {

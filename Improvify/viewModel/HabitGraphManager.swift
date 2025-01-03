@@ -17,9 +17,8 @@ class HabitGraphManager {
     var last15days: [Date] = []
     var formatter: DateFormatter {
         let dateFormatter = DateFormatter()
-
-        // Set the desired date format
         dateFormatter.dateFormat = "MM/dd"
+        dateFormatter.timeZone = TimeZone.current
         return dateFormatter
     }
     var allDataValuesAre0: Bool {
