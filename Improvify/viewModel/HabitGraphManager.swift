@@ -14,6 +14,14 @@ class HabitGraphManager {
 
     var habit: Habit
     var data: [LineChartElement] = []
+    var last15days: [Date] = []
+    var formatter: DateFormatter {
+        let dateFormatter = DateFormatter()
+
+        // Set the desired date format
+        dateFormatter.dateFormat = "MM/dd"
+        return dateFormatter
+    }
     
     
     //MARK: - Init
@@ -32,6 +40,7 @@ class HabitGraphManager {
 
         for i in 0..<15 {
             if let date = calendar.date(byAdding: .day, value: i-15, to: today) {
+                last15days.append(date)
                 let previousDayCount = cumulativeCounts.last ?? 0
                 if habit.completed.contains(where: { calendar.isDate(date, inSameDayAs: $0) }) { //completed on that day
                     //+1
