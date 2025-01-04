@@ -21,14 +21,6 @@ class HabitGraphManager {
         dateFormatter.timeZone = TimeZone.current
         return dateFormatter
     }
-    var allDataValuesAre0: Bool {
-        for element in data {
-            if element.value != 0 {
-                return false
-            }
-        }
-        return true
-    }
     
     
     //MARK: - Init

@@ -8,8 +8,6 @@
 import SwiftUI
 import Charts
 
-let ZERO_VALUE_OFFSET: CGFloat = 150
-
 struct HabitGraphView: View {
     var manager: HabitGraphManager
     
@@ -21,7 +19,6 @@ struct HabitGraphView: View {
                         x: .value("Date", $0.date),
                         y: .value("Count", $0.value)
                     )
-                    .offset(y: manager.allDataValuesAre0 ? ZERO_VALUE_OFFSET : 0)
                     .symbol {
                         Circle()
                             .frame(width: 5, height: 5)
@@ -39,12 +36,12 @@ struct HabitGraphView: View {
                     AxisGridLine()
                 }
             }
+            .chartYScale(domain: 0...15)
             .chartYAxis {
-                let values0 = [0]
                 let values = [0, 3, 6, 9, 12, 15]
-                AxisMarks(values: manager.allDataValuesAre0 ? values0 : values) { value in
-                    AxisValueLabel("\(values[value.index])").offset(x: 15, y: manager.allDataValuesAre0 ? ZERO_VALUE_OFFSET : 0)
-                    AxisGridLine().offset(y: manager.allDataValuesAre0 ? ZERO_VALUE_OFFSET : 0)
+                AxisMarks(values: values) { value in
+                    AxisValueLabel("\(values[value.index])").offset(x: 15)
+                    AxisGridLine()
                 }
             }
             .listRowBackground(Color.clear)
