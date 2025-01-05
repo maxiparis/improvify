@@ -21,13 +21,18 @@ struct HabitGraphView: View {
                     )
                     .symbol {
                         Circle()
-                            .frame(width: 5, height: 5)
+                            .frame(width: 8, height: 8)
                     }
+                    .interpolationMethod(.catmullRom)
                 }
             }
+            .chartXAxisLabel(position: .bottom, alignment: .center) {
+                Text("Date").padding(.top, 5)
+            }
+            .chartYAxisLabel("Cumulative Count", position: .leading)
             .chartXAxis {
                 AxisMarks(preset: .aligned , values: manager.last15days) { value in
-                    if ((value.index+1) % 3 == 0 || value.index == 0) {
+                    if ((value.index) % 3 == 0 || value.index == 0 || value.index == value.count-1) {
                         let date = manager.last15days[value.index]
                         let stringFormatted = manager.formatter.string(from: date)
                         AxisValueLabel(stringFormatted)
@@ -39,15 +44,14 @@ struct HabitGraphView: View {
             .chartYScale(domain: 0...15)
             .chartYAxis {
                 let values = [0, 3, 6, 9, 12, 15]
-                AxisMarks(values: values) { value in
-                    AxisValueLabel("\(values[value.index])").offset(x: 15)
+                AxisMarks(preset: .aligned, position: .leading, values: values) { value in
+                    AxisValueLabel("\(values[value.index])").offset(x: -7)
                     AxisGridLine()
                 }
             }
             .listRowBackground(Color.clear)
             .foregroundStyle(Color(.blue))
-            .frame(height: 300)
-            .padding()
+            .frame(height: 400)
             
         }
         .navigationTitle(manager.habit.name)
