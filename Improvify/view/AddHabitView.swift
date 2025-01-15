@@ -42,5 +42,8 @@ struct AddHabitView: View {
                 }
             }
         }
+        .onDisappear {
+            habitManager.newHabitName = ""
+        }
     }
 }
