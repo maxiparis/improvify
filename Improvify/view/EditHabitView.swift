@@ -9,6 +9,8 @@ import SwiftUI
 
 struct EditHabitView: View {
     @Bindable var habitManager: HabitsManager
+    @Environment(\.editMode) private var editMode
+
     
     var body: some View {
         NavigationStack {
@@ -30,7 +32,6 @@ struct EditHabitView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        //TODO: work on here
                         habitManager.handleEditHabit()
                     }
                 }

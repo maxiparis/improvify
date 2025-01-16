@@ -48,33 +48,7 @@ struct HabitsListView: View {
                 //MARK: - List of Habits
                 Section {
                     ForEach(habitsManager.habits) { habit in
-                        HStack {
-                            Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.circle.fill" : "circle")
-                                .font(.system(size: 20))
-                                .onTapGesture {
-                                    withAnimation {
-                                        habitsManager.handleTappingOnHabit(habit)
-                                    }
-                                }
-                            
-                            Text("\(habit.name) - \(habit.completeBy)")
-                                .strikethrough(habitsManager.habitIsCompleted(habit))
-                                .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
-                                .onTapGesture {
-                                    habitsManager.graphSelectedHabit = habit
-                                    habitsManager.presentGraphView = true
-                                }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "pencil")
-                                .onTapGesture {
-                                    habitsManager.habitOnEdit = habit
-                                    habitsManager.presentEditHabitView = true
-                                    
-                                }
-                        }
-                        
+                        HabitRow(habitsManager: habitsManager, habit: habit)
                     }
                     .onDelete(perform: habitsManager.handleOnDelete)
                 }
@@ -128,5 +102,46 @@ struct iOSCheckboxToggleStyle: ToggleStyle {
                 configuration.label
             }
         })
+    }
+}
+
+struct HabitRow: View {
+    var habitsManager: HabitsManager
+    var habit: Habit
+    @Environment(\.editMode) private var editMode
+
+    
+    var body: some View {
+        HStack {
+            Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 20))
+                .onTapGesture {
+                    if !editMode!.wrappedValue.isEditing {
+                        withAnimation {
+                            habitsManager.handleTappingOnHabit(habit)
+                        }
+                    }
+                }
+            
+            Text("\(habit.name) - \(habit.completeBy)")
+                .strikethrough(habitsManager.habitIsCompleted(habit))
+                .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
+                .onTapGesture {
+                    if !editMode!.wrappedValue.isEditing {
+                        habitsManager.graphSelectedHabit = habit
+                        habitsManager.presentGraphView = true
+                    }
+                }
+            
+            Spacer()
+            
+            if editMode!.wrappedValue.isEditing {
+                Image(systemName: "pencil")
+                    .onTapGesture {
+                        habitsManager.habitOnEdit = habit
+                        habitsManager.presentEditHabitView = true
+                    }
+            }
+        }
     }
 }
