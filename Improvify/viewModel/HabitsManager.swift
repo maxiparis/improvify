@@ -80,9 +80,9 @@ class HabitsManager {
         return timeFormatter.string(from: date).lowercased()
     }
     
-    func habitIsCompleted(_ habit: Habit) -> Bool {
+    func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool {
         for dateCompleted in habit.completed {
-            if calendar.isDate(dateSelected, inSameDayAs: dateCompleted) {
+            if calendar.isDate(date, inSameDayAs: dateCompleted) {
                 return true
             }
         }
@@ -96,6 +96,14 @@ class HabitsManager {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         let date = formatter.date(from: timeString)
         return date
+    }
+    
+    func previousDay(_ date: Date) -> Date {
+        Calendar.current.date(byAdding: .day, value: -1, to: date)!
+    }
+
+    func nextDay(_ date: Date) -> Date {
+        Calendar.current.date(byAdding: .day, value: 1, to: date)!
     }
     
     //MARK: - Data Handling
@@ -147,16 +155,16 @@ class HabitsManager {
         dateSelected = Date()
     }
     
-    func handleTappingOnHabit(_ habit: Habit) {
-        
-        if habitIsCompleted(habit) {
-            habit.completed.removeAll { date in
-                calendar.isDate(date, inSameDayAs: dateSelected)
+    func handleTappingOnHabit(_ habit: Habit, on date: Date) {
+        if habitIsCompleted(habit, on: date) {
+            habit.completed.removeAll { datesCompleted in
+                calendar.isDate(datesCompleted, inSameDayAs: date)
             }
         } else {
-            habit.completed.append(dateSelected)
+            habit.completed.append(date)
         }
     }
+    
     
     func handleOnDelete(at index: IndexSet) {
         if let position = index.first {

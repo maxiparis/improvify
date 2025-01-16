@@ -26,6 +26,7 @@ struct EditHabitView: View {
                         displayedComponents: .hourAndMinute
                     )
                     .datePickerStyle(WheelDatePickerStyle())
+                    .labelsHidden()
                 }
             }
             .navigationTitle(Text("Edit Habit"))
