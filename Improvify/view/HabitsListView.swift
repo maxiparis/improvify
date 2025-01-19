@@ -13,13 +13,16 @@ struct HabitsListView: View {
     
     var body: some View {
         NavigationStack {
-            InfinitePageView(
-                selection: $habitsManager.dateSelected,
-                before: habitsManager.previousDay,
-                after: habitsManager.nextDay) { date in
-                    DateAndHabitsView(habitsManager: habitsManager, date: date)
-            }
-            .ignoresSafeArea(edges: .bottom)
+                InfinitePageView(
+                    selection: $habitsManager.dateSelected,
+                    before: habitsManager.previousDay,
+                    after: habitsManager.nextDay,
+                    view: { date in
+                        DateAndHabitsView(habitsManager: habitsManager, date: date)
+                    },
+                    currentTab: $habitsManager.currentTab
+                )
+//            .ignoresSafeArea(edges: .bottom) //This line introduced the bug where the arrows wouldn't work unless there were external arrows
             .navigationTitle(Text("Improvify"))
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {

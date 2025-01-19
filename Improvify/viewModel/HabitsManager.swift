@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @Observable
 class HabitsManager {
@@ -51,6 +52,8 @@ class HabitsManager {
     
     var presentGraphView = false
     var graphSelectedHabit: Habit?
+    
+    var currentTab = 0 //controls the current tab in the tabView
     
     //MARK: - Init
 
@@ -99,11 +102,11 @@ class HabitsManager {
     }
     
     func previousDay(_ date: Date) -> Date {
-        Calendar.current.date(byAdding: .day, value: -1, to: date)!
+        Calendar.current.date(byAdding: .day, value: -1, to: dateSelected)!
     }
 
     func nextDay(_ date: Date) -> Date {
-        Calendar.current.date(byAdding: .day, value: 1, to: date)!
+        Calendar.current.date(byAdding: .day, value: 1, to: dateSelected)!
     }
     
     //MARK: - Data Handling
@@ -136,19 +139,25 @@ class HabitsManager {
     
     //MARK: - User Intents
     func moveDayForward() {
-        if let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: dateSelected) {
-            dateSelected = nextDay
-        } else {
-            print("error moving day forward")
-        }
+        currentTab = 1
+
+//        if let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: dateSelected) {
+////                dateSelected = nextDay
+//            currentTab = 1
+//        } else {
+//            print("error moving day forward")
+//        }
     }
     
     func moveDayBackward() {
-        if let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: dateSelected) {
-            dateSelected = previousDay
-        } else {
-            print("error moving day backwards")
-        }
+        currentTab = -1
+
+//        if let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: dateSelected) {
+////                dateSelected = previousDay
+//            currentTab = -1
+//        } else {
+//            print("error moving day backwards")
+//        }
     }
 
     func goToToday() {

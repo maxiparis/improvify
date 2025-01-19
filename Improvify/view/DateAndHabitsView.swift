@@ -16,7 +16,9 @@ struct DateAndHabitsView: View {
                 HStack {
                     Image(systemName: "arrow.left")
                         .onTapGesture {
-                            habitsManager.moveDayBackward()
+                            withAnimation {
+                                habitsManager.moveDayBackward()
+                            }
                         }
                     
                     Spacer()
@@ -28,7 +30,9 @@ struct DateAndHabitsView: View {
                     
                     Image(systemName: "arrow.right")
                         .onTapGesture {
-                            habitsManager.moveDayForward()
+                            withAnimation {
+                                habitsManager.moveDayForward()
+                            }
                         }
                 }
             }
@@ -36,10 +40,8 @@ struct DateAndHabitsView: View {
             Section {
                 ForEach(habitsManager.habits, id: \.self) { habit in
                     HabitRow(habitsManager: habitsManager, habit: habit, date: date)
-                    
                 }
             }
         }
-        .id(date)
     }
 }
