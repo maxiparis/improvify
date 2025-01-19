@@ -28,11 +28,9 @@ struct InfinitePageView<C, T>: View where C: View, T: Hashable {
 
             view(selection)
                 .onAppear {
-                    print(".onAppear with selection =       \(selection)")
                     currentTab = 0
                 }
                 .onDisappear {
-                    print(".onDisappear with selection =    \(selection)")
                     if currentTab != 0 {
                         selection = currentTab < 0 ? previousIndex : nextIndex
                         currentTab = 0

@@ -161,7 +161,18 @@ class HabitsManager {
     }
 
     func goToToday() {
-        dateSelected = Date()
+        withAnimation {
+            let today = Date()
+            if !Calendar.current.isDate(dateSelected, inSameDayAs: today) {
+                if dateSelected < today { //we are in the past
+                    dateSelected = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+                    moveDayForward()
+                } else {
+                    dateSelected = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+                    moveDayBackward()
+                }
+            }
+        }
     }
     
     func handleTappingOnHabit(_ habit: Habit, on date: Date) {
