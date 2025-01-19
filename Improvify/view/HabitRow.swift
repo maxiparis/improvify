@@ -15,15 +15,6 @@ struct HabitRow: View {
     
     var body: some View {
         HStack {
-            Image(systemName: habitsManager.habitIsCompleted(habit, on: date) ? "checkmark.circle.fill" : "circle")
-                .font(.system(size: 20))
-                .onTapGesture {
-                    if !editMode!.wrappedValue.isEditing {
-                        withAnimation {
-                            habitsManager.handleTappingOnHabit(habit, on: date)
-                        }
-                    }
-                }
             
             Text("\(habit.name) - \(habit.completeBy)")
                 .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
@@ -36,6 +27,17 @@ struct HabitRow: View {
                 }
             
             Spacer()
+            
+            Image(systemName: habitsManager.habitIsCompleted(habit, on: date) ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(.blue)
+                .font(.system(size: 20))
+                .onTapGesture {
+                    if !editMode!.wrappedValue.isEditing {
+                        withAnimation {
+                            habitsManager.handleTappingOnHabit(habit, on: date)
+                        }
+                    }
+                }
             
             if editMode!.wrappedValue.isEditing {
                 Image(systemName: "pencil")

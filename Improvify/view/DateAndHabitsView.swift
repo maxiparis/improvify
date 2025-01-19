@@ -15,6 +15,8 @@ struct DateAndHabitsView: View {
             Section {
                 HStack {
                     Image(systemName: "arrow.left")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.blue)
                         .onTapGesture {
                             withAnimation {
                                 habitsManager.moveDayBackward()
@@ -23,12 +25,15 @@ struct DateAndHabitsView: View {
                     
                     Spacer()
                     Text("\(habitsManager.dateFormatter.string(from: date))")
+                        .font(.headline)
                         .onTapGesture {
                             habitsManager.goToToday()
                         }
                     Spacer()
                     
                     Image(systemName: "arrow.right")
+                        .font(.system(size: 20))
+                        .foregroundStyle(.blue)
                         .onTapGesture {
                             withAnimation {
                                 habitsManager.moveDayForward()

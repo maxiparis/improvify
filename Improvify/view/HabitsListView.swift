@@ -23,7 +23,7 @@ struct HabitsListView: View {
                     currentTab: $habitsManager.currentTab
                 )
 //            .ignoresSafeArea(edges: .bottom) //This line introduced the bug where the arrows wouldn't work unless there were external arrows
-            .navigationTitle(Text("Improvify"))
+            .navigationTitle("Improvify")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     EditButton()
