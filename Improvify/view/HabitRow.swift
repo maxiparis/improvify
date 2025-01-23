@@ -10,11 +10,28 @@ struct HabitRow: View {
     var habitsManager: HabitsManager
     var habit: Habit
     var date: Date
+    @State var showAlert = false
     @Environment(\.editMode) private var editMode
 
     
     var body: some View {
         HStack {
+            if editMode!.wrappedValue.isEditing {
+                Image(systemName: "trash")
+                    .foregroundStyle(.red)
+                    .onTapGesture {
+                        showAlert = true
+                    }
+                    .alert("Are you sure you want to delete this habit?", isPresented: $showAlert) {
+                        Button("Delete", role: .destructive) {
+                            withAnimation {
+                                habitsManager.handleDelete(habit: habit)
+                            }
+                        }
+                        Button("Cancel", role: .cancel) { }
+                    }
+            }
+
             
             Text("\(habit.name) - \(habit.completeBy)")
                 .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
@@ -28,16 +45,18 @@ struct HabitRow: View {
             
             Spacer()
             
-            Image(systemName: habitsManager.habitIsCompleted(habit, on: date) ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(.blue)
-                .font(.system(size: 20))
-                .onTapGesture {
-                    if !editMode!.wrappedValue.isEditing {
-                        withAnimation {
-                            habitsManager.handleTappingOnHabit(habit, on: date)
+            if !editMode!.wrappedValue.isEditing {
+                Image(systemName: habitsManager.habitIsCompleted(habit, on: date) ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(.orange)
+                    .font(.system(size: 20))
+                    .onTapGesture {
+                        if !editMode!.wrappedValue.isEditing {
+                            withAnimation {
+                                habitsManager.handleTappingOnHabit(habit, on: date)
+                            }
                         }
                     }
-                }
+            }
             
             if editMode!.wrappedValue.isEditing {
                 Image(systemName: "pencil")

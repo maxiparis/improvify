@@ -43,8 +43,13 @@ struct DateAndHabitsView: View {
             }
             
             Section {
-                ForEach(habitsManager.habits, id: \.self) { habit in
-                    HabitRow(habitsManager: habitsManager, habit: habit, date: date)
+                if habitsManager.habits.isEmpty {
+                    Text("No habits yet. Add one by tapping the plus button above.")
+                        .listRowBackground(Color.clear)
+                } else {
+                    ForEach(habitsManager.habits, id: \.self) { habit in
+                        HabitRow(habitsManager: habitsManager, habit: habit, date: date)
+                    }
                 }
             }
         }

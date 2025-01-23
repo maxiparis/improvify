@@ -68,7 +68,7 @@ class HabitsManager {
         
         if habits.isEmpty {
             print("habits are empty")
-            createDefaultData()
+//            createDefaultData()
             fetchData()
         }
     }
@@ -193,6 +193,13 @@ class HabitsManager {
             modelContext.delete(removed)
             try? modelContext.save()
         }
+    }
+    
+    func handleDelete(habit: Habit) {
+        let removed = habits.remove(at: habits.firstIndex(of: habit)!)
+        
+        modelContext.delete(removed)
+        try? modelContext.save()
     }
     
 //    func handleOnMove(from source: IndexSet, to destination: Int) {
