@@ -55,6 +55,9 @@ struct HabitsListView: View {
                 }
             }
         }
+        .onAppear {
+            NotificationManager.requestAuthorization()
+        }
     }
 }
 

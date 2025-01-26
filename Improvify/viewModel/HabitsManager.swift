@@ -17,22 +17,11 @@ class HabitsManager {
     var habits: [Habit] = []
     var dateSelected: Date {
         didSet {
-            dateString = dateFormatter.string(from: dateSelected)
+            dateString = dateSelected.toDateString()
         }
     }
     let calendar = Calendar.current
     var dateString: String = ""
-    var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM d"
-        return formatter
-    }
-    var timeFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a" // Use 12-hour format with AM/PM
-        formatter.locale = Locale(identifier: "en_US_POSIX") // Set the locale to ensure consistent formatting
-        return formatter
-    }
     
     var presentAddHabitView = false
     var newHabitName = ""
@@ -76,11 +65,11 @@ class HabitsManager {
     //MARK: - Util
     
     func formatDateString() {
-        dateString = dateFormatter.string(from: dateSelected)
+        dateString = dateSelected.toDateString()
     }
     
     func formatTime(from date: Date) -> String {
-        return timeFormatter.string(from: date).lowercased()
+        return date.toTimeString().lowercased()
     }
     
     func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool {
@@ -109,6 +98,15 @@ class HabitsManager {
         Calendar.current.date(byAdding: .day, value: 1, to: dateSelected)!
     }
     
+    func createSpecificTimeDate(hour: Int, minute: Int) -> Date? {
+        var components = DateComponents()
+        components.hour = hour
+        components.minute = minute
+        
+        // Use the current calendar to generate the date
+        return Calendar.current.date(from: components)
+    }
+    
     //MARK: - Data Handling
     
     func fetchData() {
@@ -123,9 +121,11 @@ class HabitsManager {
     }
     
     func createDefaultData() {
+        
+        
         let habitsToAdd = [
-            Habit(name: "Do Exercisse", completeBy: "01:00pm", completed: [Date()]),
-            Habit(name: "Pray", completeBy: "08:00am"),
+            Habit(name: "Do Exercisse", completeByDate: createSpecificTimeDate(hour: 13, minute: 0) ?? Date(), completed: [Date()]),
+            Habit(name: "Pray", completeByDate: createSpecificTimeDate(hour: 8, minute: 0) ?? Date())
         ]
         
         for habit in habitsToAdd {
@@ -208,18 +208,21 @@ class HabitsManager {
 //    }
     
     func createNewHabit() {
-        let newHabit = Habit(name: newHabitName, completeBy: formatTime(from: newHabitTime))
+        let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime)
         habits.append(newHabit)
         
         modelContext.insert(newHabit)
         try? modelContext.save()
         
+        NotificationManager.createDailyReminderFor(newHabit)
         presentAddHabitView = false
     }
     
     func handleEditHabit() {
         habitOnEdit!.name = editHabitName
-        habitOnEdit!.completeBy = formatTime(from: editHabitTime)
+        habitOnEdit!.completeByTime = editHabitTime
+        NotificationManager.modifyDailyReminderFor(habitOnEdit!)
+        
         
         presentEditHabitView = false
     }

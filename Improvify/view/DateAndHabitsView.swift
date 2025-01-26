@@ -24,7 +24,7 @@ struct DateAndHabitsView: View {
                         }
                     
                     Spacer()
-                    Text("\(habitsManager.dateFormatter.string(from: date))")
+                    Text("\(date.toDateString())")
                         .font(.headline)
                         .onTapGesture {
                             habitsManager.goToToday()

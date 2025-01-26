@@ -12,14 +12,17 @@ import SwiftData
 class Habit: Identifiable {
     @Attribute(.unique) var id: UUID = UUID()
     var name: String
-    var completeBy: String
+    var completeBy: String {
+        completeByTime.toTimeString()
+    }
+    var completeByTime: Date //TODO: make this a DateComponent?
     var completed: [Date]
     var tags: [String]
     
 
-    init(name: String, completeBy: String, completed: [Date] = [], tags: [String] = []) {
+    init(name: String, completeByDate: Date, completed: [Date] = [], tags: [String] = []) {
         self.name = name
-        self.completeBy = completeBy
+        self.completeByTime = completeByDate
         self.completed = completed
         self.tags = tags
     }
