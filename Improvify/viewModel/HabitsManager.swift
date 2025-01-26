@@ -186,20 +186,22 @@ class HabitsManager {
     }
     
     
-    func handleOnDelete(at index: IndexSet) {
-        if let position = index.first {
-            let removed = habits.remove(at: position)
-            
-            modelContext.delete(removed)
-            try? modelContext.save()
-        }
-    }
+//    func handleOnDelete(at index: IndexSet) {
+//        if let position = index.first {
+//            let removed = habits.remove(at: position)
+//            
+//            modelContext.delete(removed)
+//            try? modelContext.save()
+//        }
+//    }
     
     func handleDelete(habit: Habit) {
         let removed = habits.remove(at: habits.firstIndex(of: habit)!)
         
         modelContext.delete(removed)
         try? modelContext.save()
+        
+        NotificationManager.deleteDailyReminderFor(habit)
     }
     
 //    func handleOnMove(from source: IndexSet, to destination: Int) {

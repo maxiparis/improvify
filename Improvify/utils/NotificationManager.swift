@@ -44,9 +44,12 @@ class NotificationManager {
     }
     
     static func modifyDailyReminderFor(_ habit: Habit) {
+        deleteDailyReminderFor(habit)
+        createDailyReminderFor(habit)
+    }
+    
+    static func deleteDailyReminderFor(_ habit: Habit) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [habit.id.uuidString])
         print("Reminders removed for habit \(habit.name)")
-        
-        createDailyReminderFor(habit)
     }
 }
