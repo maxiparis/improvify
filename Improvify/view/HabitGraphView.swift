@@ -54,6 +54,6 @@ struct HabitGraphView: View {
             .frame(height: 400)
             
         }
-        .navigationTitle(manager.habit.name)
+        .navigationTitle(manager.habit.name.removingEmojis())
     }
 }

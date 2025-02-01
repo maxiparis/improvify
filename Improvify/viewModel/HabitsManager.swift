@@ -121,8 +121,6 @@ class HabitsManager {
     }
     
     func createDefaultData() {
-        
-        
         let habitsToAdd = [
             Habit(name: "Do Exercisse", completeByDate: createSpecificTimeDate(hour: 13, minute: 0) ?? Date(), completed: [Date()]),
             Habit(name: "Pray", completeByDate: createSpecificTimeDate(hour: 8, minute: 0) ?? Date())
@@ -140,24 +138,10 @@ class HabitsManager {
     //MARK: - User Intents
     func moveDayForward() {
         currentTab = 1
-
-//        if let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: dateSelected) {
-////                dateSelected = nextDay
-//            currentTab = 1
-//        } else {
-//            print("error moving day forward")
-//        }
     }
     
     func moveDayBackward() {
         currentTab = -1
-
-//        if let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: dateSelected) {
-////                dateSelected = previousDay
-//            currentTab = -1
-//        } else {
-//            print("error moving day backwards")
-//        }
     }
 
     func goToToday() {
