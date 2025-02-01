@@ -17,7 +17,7 @@ struct AddHabitView: View {
                     TextField("Name", text: $habitManager.newHabitName)
                 }
                 
-                Section(header: Text("Complete by:")) {
+                Section(header: Text("Reminder at:")) {
                     DatePicker(
                         "Select Time",
                         selection: $habitManager.newHabitTime,

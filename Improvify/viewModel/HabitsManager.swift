@@ -44,8 +44,10 @@ class HabitsManager {
     
     var currentTab = 0 //controls the current tab in the tabView
     
+    var isDateAnimating = false
+    
     //MARK: - Init
-
+    
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         
@@ -57,7 +59,7 @@ class HabitsManager {
         
         if habits.isEmpty {
             print("habits are empty")
-//            createDefaultData()
+            //            createDefaultData()
             fetchData()
         }
     }
@@ -93,7 +95,7 @@ class HabitsManager {
     func previousDay(_ date: Date) -> Date {
         Calendar.current.date(byAdding: .day, value: -1, to: dateSelected)!
     }
-
+    
     func nextDay(_ date: Date) -> Date {
         Calendar.current.date(byAdding: .day, value: 1, to: dateSelected)!
     }
@@ -132,8 +134,8 @@ class HabitsManager {
         
         try? modelContext.save()
     }
-
-
+    
+    
     
     //MARK: - User Intents
     func moveDayForward() {
@@ -143,18 +145,30 @@ class HabitsManager {
     func moveDayBackward() {
         currentTab = -1
     }
-
-    func goToToday() {
+    
+    func goToToday(todayAnimated: Bool = true) {
         withAnimation {
             let today = Date()
-            if !Calendar.current.isDate(dateSelected, inSameDayAs: today) {
+            if Calendar.current.isDate(dateSelected, inSameDayAs: today) {
+                if todayAnimated {
+                    withAnimation {
+                        isDateAnimating = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            self.isDateAnimating = false // Shrink back automatically
+                        }
+                    }
+                }
+            } else {
                 if dateSelected < today { //we are in the past
                     dateSelected = Calendar.current.date(byAdding: .day, value: -1, to: today)!
                     moveDayForward()
-                } else {
+                } else { //we are in the future
                     dateSelected = Calendar.current.date(byAdding: .day, value: 1, to: today)!
                     moveDayBackward()
                 }
+                
             }
         }
     }
@@ -170,14 +184,14 @@ class HabitsManager {
     }
     
     
-//    func handleOnDelete(at index: IndexSet) {
-//        if let position = index.first {
-//            let removed = habits.remove(at: position)
-//            
-//            modelContext.delete(removed)
-//            try? modelContext.save()
-//        }
-//    }
+    //    func handleOnDelete(at index: IndexSet) {
+    //        if let position = index.first {
+    //            let removed = habits.remove(at: position)
+    //
+    //            modelContext.delete(removed)
+    //            try? modelContext.save()
+    //        }
+    //    }
     
     func handleDelete(habit: Habit) {
         let removed = habits.remove(at: habits.firstIndex(of: habit)!)
@@ -188,10 +202,10 @@ class HabitsManager {
         NotificationManager.deleteDailyReminderFor(habit)
     }
     
-//    func handleOnMove(from source: IndexSet, to destination: Int) {
-//        habits.move(fromOffsets: source, toOffset: destination)
-//        try? modelContext.save()
-//    }
+    //    func handleOnMove(from source: IndexSet, to destination: Int) {
+    //        habits.move(fromOffsets: source, toOffset: destination)
+    //        try? modelContext.save()
+    //    }
     
     func createNewHabit() {
         let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime)

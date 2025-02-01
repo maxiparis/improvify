@@ -26,7 +26,6 @@ extension Date {
             return formatter
         }()
         
-        let component = DateComponents(hour: 5, minute: 10)
         return dateFormatter.string(from: self)
     }
 }

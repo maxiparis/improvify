@@ -10,7 +10,8 @@ import SwiftData
 
 struct HabitsListView: View {
     @Bindable var habitsManager: HabitsManager
-    
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         NavigationStack {
                 InfinitePageView(
@@ -54,7 +55,15 @@ struct HabitsListView: View {
                     HabitGraphView(manager: HabitGraphManager(habit: habitSelected))
                 }
             }
+//            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(Color("mainBackground"))
         }
+
+        .onChange(of: scenePhase, { oldValue, newValue in
+            if newValue == .active {
+                habitsManager.goToToday(todayAnimated: false)
+            }
+        })
         .onAppear {
             NotificationManager.requestAuthorization()
         }

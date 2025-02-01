@@ -19,7 +19,7 @@ struct EditHabitView: View {
                     TextField("Name", text: $habitManager.editHabitName)
                 }
                 
-                Section(header: Text("Complete by:")) {
+                Section(header: Text("Reminder at:")) {
                     DatePicker(
                         "Select Time",
                         selection: $habitManager.editHabitTime,

@@ -26,6 +26,7 @@ struct DateAndHabitsView: View {
                     Spacer()
                     Text("\(date.toDateString())")
                         .font(.headline)
+                        .scaleEffect(habitsManager.isDateAnimating ? 1.2 : 1.0) // Increase size to 1.5x
                         .onTapGesture {
                             habitsManager.goToToday()
                         }
