@@ -9,10 +9,20 @@ import SwiftUI
 
 struct AddHabitView: View {
     @Bindable var habitManager: HabitsManager
+
     
     var body: some View {
         NavigationStack {
             Form {
+                
+                Picker("Recurrence", selection: $habitManager.newHabitRecurrence) {
+                    ForEach(HabitRecurrence.allCases, id: \.self) { recurrence in
+                        Text(recurrence.rawValue.capitalized(with: nil)).tag(recurrence)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .listRowBackground(Color.clear)
+                
                 Section(header: Text("Habit information")) {
                     TextField("Name", text: $habitManager.newHabitName)
                 }

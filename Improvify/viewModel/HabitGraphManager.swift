@@ -33,7 +33,6 @@ class HabitGraphManager {
     //MARK: - Utils
     func generateData() {
         var calendar = Calendar.current
-//        let today = Date()
         var cumulativeCounts: [Int] = []
         var temp: [LineChartElement] = []
         

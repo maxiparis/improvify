@@ -26,6 +26,7 @@ class HabitsManager {
     var presentAddHabitView = false
     var newHabitName = ""
     var newHabitTime: Date = Date()
+    var newHabitRecurrence: HabitRecurrence = .daily
     
     var presentEditHabitView = false
     var habitOnEdit: Habit? {
@@ -47,7 +48,7 @@ class HabitsManager {
     var isDateAnimating = false // Controls the animation of the Date string, specially for when we are in today and we tap "Today"
     
     let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
-    
+        
     //MARK: - Init
     
     init(modelContext: ModelContext) {
@@ -199,7 +200,7 @@ class HabitsManager {
     }
     
     func createNewHabit() {
-        let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime)
+        let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
         habits.append(newHabit)
         
         modelContext.insert(newHabit)

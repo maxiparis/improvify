@@ -35,17 +35,19 @@ struct HabitRow: View {
                     }
             }
 
-            
-            Text("\(habit.name) - \(habit.completeBy)")
-                .lineLimit(1)
-                .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
-                .foregroundStyle(habitsManager.habitIsCompleted(habit, on: date) ? .secondary : .primary)
-                .onTapGesture {
-                    if !editMode!.wrappedValue.isEditing {
-                        habitsManager.graphSelectedHabit = habit
-                        habitsManager.presentGraphView = true
+            VStack(alignment: .leading) {
+                Text("\(habit.name) - \(habit.completeBy)")
+                    .lineLimit(1)
+                    .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
+                    .foregroundStyle(habitsManager.habitIsCompleted(habit, on: date) ? .secondary : .primary)
+                    .onTapGesture {
+                        if !editMode!.wrappedValue.isEditing {
+                            habitsManager.graphSelectedHabit = habit
+                            habitsManager.presentGraphView = true
+                        }
                     }
-                }
+                Text("\(habit.recurrence)").foregroundStyle(.secondary)
+            }
             
             Spacer()
             
@@ -62,14 +64,6 @@ struct HabitRow: View {
                         }
                     }
                 }
-            
-//            if editMode!.wrappedValue.isEditing {
-//                Image(systemName: "pencil")
-//                    .onTapGesture {
-//                        habitsManager.habitOnEdit = habit
-//                        habitsManager.presentEditHabitView = true
-//                    }
-//            }
         }
     }
 }
