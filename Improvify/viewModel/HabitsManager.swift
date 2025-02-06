@@ -46,6 +46,8 @@ class HabitsManager {
     
     var isDateAnimating = false
     
+    let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+    
     //MARK: - Init
     
     init(modelContext: ModelContext) {
@@ -173,7 +175,7 @@ class HabitsManager {
         }
     }
     
-    func handleTappingOnHabit(_ habit: Habit, on date: Date) {
+    func handleTappingOnHabitCheckmark(_ habit: Habit, on date: Date) {
         if habitIsCompleted(habit, on: date) {
             habit.completed.removeAll { datesCompleted in
                 calendar.isDate(datesCompleted, inSameDayAs: date)
@@ -181,6 +183,7 @@ class HabitsManager {
         } else {
             habit.completed.append(date)
         }
+        hapticGenerator.impactOccurred()
     }
     
     

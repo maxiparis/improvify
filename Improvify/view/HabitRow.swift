@@ -58,7 +58,7 @@ struct HabitRow: View {
                         habitsManager.presentEditHabitView = true
                     } else {
                         withAnimation {
-                            habitsManager.handleTappingOnHabit(habit, on: date)
+                            habitsManager.handleTappingOnHabitCheckmark(habit, on: date)
                         }
                     }
                 }
