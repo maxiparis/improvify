@@ -43,15 +43,24 @@ struct DateAndHabitsView: View {
                 }
             }
             
-            Section(header: Text("Daily Habits")) {
-                ForEach(habitsManager.dailyHabits, id: \.self) { habit in
-                    HabitRow(habitsManager: habitsManager, habit: habit, date: date)
+            if habitsManager.dailyHabits.isEmpty && habitsManager.weeklyHabits.isEmpty {
+                Text("There are no habits for this day. Create one by tapping on the plus (+) button in the top right corner.")
+                    .listRowBackground(Color.clear)
+            } else {
+                if (!habitsManager.dailyHabits.isEmpty) {
+                    Section(header: Text("Daily Habits")) {
+                        ForEach(habitsManager.dailyHabits, id: \.self) { habit in
+                            HabitRow(habitsManager: habitsManager, habit: habit, date: date)
+                        }
+                    }
                 }
-            }
-            
-            Section(header: Text("Weekly habits")) {
-                ForEach(habitsManager.weeklyHabits, id: \.self) { habit in
-                    HabitRow(habitsManager: habitsManager, habit: habit, date: date)
+                
+                if (!habitsManager.weeklyHabits.isEmpty) {
+                    Section(header: Text("Weekly habits")) {
+                        ForEach(habitsManager.weeklyHabits, id: \.self) { habit in
+                            HabitRow(habitsManager: habitsManager, habit: habit, date: date)
+                        }
+                    }
                 }
             }
         }

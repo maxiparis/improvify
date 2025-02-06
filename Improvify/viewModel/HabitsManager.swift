@@ -205,39 +205,44 @@ class HabitsManager {
     }
     
     func handleDelete(habit: Habit) {
-        let removed: Habit?
-        
-        if habit.recurrence == DAILY_RAW_VALUE {
-            removed = dailyHabits.remove(at: dailyHabits.firstIndex(of: habit)!)
-        } else {
-            removed = weeklyHabits.remove(at: weeklyHabits.firstIndex(of: habit)!)
+        withAnimation {
+            let removed: Habit?
+            
+            if habit.recurrence == DAILY_RAW_VALUE {
+                removed = dailyHabits.remove(at: dailyHabits.firstIndex(of: habit)!)
+            } else {
+                removed = weeklyHabits.remove(at: weeklyHabits.firstIndex(of: habit)!)
+            }
+            
+            guard let habitRemoved = removed else {
+                print("habit to be be removed was not found.")
+                return
+            }
+            
+            modelContext.delete(habitRemoved)
+            try? modelContext.save()
+            
+            NotificationManager.deleteDailyReminderFor(habitRemoved)
         }
-        
-        guard let habitRemoved = removed else {
-            print("habit to be be removed was not found.")
-            return
-        }
-        
-        modelContext.delete(habitRemoved)
-        try? modelContext.save()
-        
-        NotificationManager.deleteDailyReminderFor(habitRemoved)
     }
     
     func createNewHabit() {
-        let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
-        
-        if newHabit.recurrence == HabitRecurrence.daily.rawValue {
-            dailyHabits.append(newHabit)
-        } else {
-            weeklyHabits.append(newHabit)
+        withAnimation {
+            let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
+            
+            if newHabit.recurrence == HabitRecurrence.daily.rawValue {
+                dailyHabits.append(newHabit)
+            } else {
+                weeklyHabits.append(newHabit)
+            }
+            
+            
+            modelContext.insert(newHabit)
+            try? modelContext.save()
+            
+            NotificationManager.createDailyReminderFor(newHabit)
+            presentAddHabitView = false
         }
-        
-        modelContext.insert(newHabit)
-        try? modelContext.save()
-        
-        NotificationManager.createDailyReminderFor(newHabit)
-        presentAddHabitView = false
     }
     
     func handleEditHabit() {
