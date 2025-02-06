@@ -55,7 +55,6 @@ struct HabitsListView: View {
                     HabitGraphView(manager: HabitGraphManager(habit: habitSelected))
                 }
             }
-//            .background(Color(UIColor.secondarySystemGroupedBackground))
             .background(Color("mainBackground"))
         }
 
@@ -69,26 +68,3 @@ struct HabitsListView: View {
         }
     }
 }
-
-
-
-
-struct iOSCheckboxToggleStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        // 1
-        Button(action: {
-            
-            // 2
-            configuration.isOn.toggle()
-            
-        }, label: {
-            HStack {
-                // 3
-                Image(systemName: configuration.isOn ? "checkmark.square" : "square")
-                
-                configuration.label
-            }
-        })
-    }
-}
-

@@ -27,6 +27,12 @@ class Habit: Identifiable {
     var completed: [Date]
     var tags: [String]
     var recurrence: String
+    var isDaily: Bool {
+        return recurrence == HabitRecurrence.daily.rawValue
+    }
+    var isWeekly: Bool {
+        return recurrence == HabitRecurrence.weekly.rawValue
+    }
     
     
     //MARK: - Init

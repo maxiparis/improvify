@@ -31,9 +31,9 @@ struct HabitGraphView: View {
             }
             .chartYAxisLabel("Cumulative Count", position: .leading)
             .chartXAxis {
-                AxisMarks(preset: .aligned , values: manager.last15days) { value in
+                AxisMarks(preset: .aligned , values: manager.last15recurrences) { value in
                     if ((value.index) % 3 == 0 || value.index == 0 || value.index == value.count-1) {
-                        let date = manager.last15days[value.index]
+                        let date = manager.last15recurrences[value.index]
                         let stringFormatted = manager.formatter.string(from: date)
                         AxisValueLabel(stringFormatted)
                             .offset(y: 10)
