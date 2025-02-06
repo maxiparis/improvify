@@ -9,12 +9,17 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+let DAILY_RAW_VALUE = HabitRecurrence.daily.rawValue
+let WEEKLY_RAW_VALUE = HabitRecurrence.weekly.rawValue
+
 @Observable
 class HabitsManager {
     
     //MARK: - Properties
     private var modelContext: ModelContext
-    var habits: [Habit] = []
+    var dailyHabits: [Habit] = []
+    var weeklyHabits: [Habit] = []
+    
     var dateSelected: Date {
         didSet {
             dateString = dateSelected.toDateString()
@@ -59,7 +64,7 @@ class HabitsManager {
         
         fetchData()
         
-        if habits.isEmpty {
+        if dailyHabits.isEmpty {
             print("habits are empty")
             fetchData()
         }
@@ -121,8 +126,17 @@ class HabitsManager {
         try? modelContext.save()
         
         do {
-            let habitsDescriptot = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.name)])
-            habits = try modelContext.fetch(habitsDescriptot)
+            let dailyHabitsDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate<Habit>{$0.recurrence == DAILY_RAW_VALUE},
+                sortBy: [SortDescriptor(\.completeByTime)]
+            )
+            dailyHabits = try modelContext.fetch(dailyHabitsDescriptor)
+            
+            let weeklyHabitsDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate<Habit> { $0.recurrence == WEEKLY_RAW_VALUE },
+                sortBy: [SortDescriptor(\.completeByTime)]
+            )
+            weeklyHabits = try modelContext.fetch(weeklyHabitsDescriptor)
         } catch {
             print("failed to fetch data")
         }
@@ -191,7 +205,7 @@ class HabitsManager {
     }
     
     func handleDelete(habit: Habit) {
-        let removed = habits.remove(at: habits.firstIndex(of: habit)!)
+        let removed = dailyHabits.remove(at: dailyHabits.firstIndex(of: habit)!)
         
         modelContext.delete(removed)
         try? modelContext.save()
@@ -201,7 +215,7 @@ class HabitsManager {
     
     func createNewHabit() {
         let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
-        habits.append(newHabit)
+        dailyHabits.append(newHabit)
         
         modelContext.insert(newHabit)
         try? modelContext.save()

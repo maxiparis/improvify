@@ -36,7 +36,7 @@ struct HabitRow: View {
             }
 
             VStack(alignment: .leading) {
-                Text("\(habit.name) - \(habit.completeBy)")
+                Text(habit.name)
                     .lineLimit(1)
                     .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
                     .foregroundStyle(habitsManager.habitIsCompleted(habit, on: date) ? .secondary : .primary)
@@ -46,7 +46,9 @@ struct HabitRow: View {
                             habitsManager.presentGraphView = true
                         }
                     }
-                Text("\(habit.recurrence)").foregroundStyle(.secondary)
+                Text("\(habit.completeBy)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
             
             Spacer()
