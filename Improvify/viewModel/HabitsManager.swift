@@ -42,9 +42,9 @@ class HabitsManager {
     var presentGraphView = false
     var graphSelectedHabit: Habit?
     
-    var currentTab = 0 //controls the current tab in the tabView
+    var currentTab = 0 // Controls the current tab in the tabView
     
-    var isDateAnimating = false
+    var isDateAnimating = false // Controls the animation of the Date string, specially for when we are in today and we tap "Today"
     
     let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
     
@@ -53,7 +53,6 @@ class HabitsManager {
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
         
-        
         dateSelected = Date()
         formatDateString()
         
@@ -61,7 +60,6 @@ class HabitsManager {
         
         if habits.isEmpty {
             print("habits are empty")
-            //            createDefaultData()
             fetchData()
         }
     }
@@ -109,6 +107,11 @@ class HabitsManager {
         
         // Use the current calendar to generate the date
         return Calendar.current.date(from: components)
+    }
+    
+    func completedHabitFeedback() {
+        hapticGenerator.impactOccurred()
+        SoundManager.shared.playSound(named: "success-sound")
     }
     
     //MARK: - Data Handling
@@ -182,19 +185,9 @@ class HabitsManager {
             }
         } else {
             habit.completed.append(date)
+            completedHabitFeedback()
         }
-        hapticGenerator.impactOccurred()
     }
-    
-    
-    //    func handleOnDelete(at index: IndexSet) {
-    //        if let position = index.first {
-    //            let removed = habits.remove(at: position)
-    //
-    //            modelContext.delete(removed)
-    //            try? modelContext.save()
-    //        }
-    //    }
     
     func handleDelete(habit: Habit) {
         let removed = habits.remove(at: habits.firstIndex(of: habit)!)
@@ -204,11 +197,6 @@ class HabitsManager {
         
         NotificationManager.deleteDailyReminderFor(habit)
     }
-    
-    //    func handleOnMove(from source: IndexSet, to destination: Int) {
-    //        habits.move(fromOffsets: source, toOffset: destination)
-    //        try? modelContext.save()
-    //    }
     
     func createNewHabit() {
         let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime)
