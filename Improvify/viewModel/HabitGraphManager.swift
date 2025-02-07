@@ -21,8 +21,14 @@ class HabitGraphManager {
         dateFormatter.timeZone = TimeZone.current
         return dateFormatter
     }
-    
-    
+    var calendar: Calendar {
+        var newCal = Calendar.current
+        newCal.timeZone = TimeZone.current
+        return newCal
+    }
+    var cumulativeCounts: [Int] = []
+
+
     //MARK: - Init
     init(habit: Habit) {
         self.habit = habit
@@ -50,12 +56,6 @@ class HabitGraphManager {
     
     //MARK: - Logic
     func generateDailyData() {
-        var calendar = Calendar.current
-        var cumulativeCounts: [Int] = []
-        var temp: [LineChartElement] = []
-        
-        let currentTimeZone = TimeZone.current
-        calendar.timeZone = currentTimeZone
         let todayComponents = calendar.dateComponents([.year, .month, .day], from: Date())
 
         // Create today's date (midnight in the current time zone)
@@ -68,50 +68,54 @@ class HabitGraphManager {
                         //+1
                         let thisDayCount = previousDayCount+1
                         cumulativeCounts.append(thisDayCount)
-                        temp.append(LineChartElement(date: date, value: thisDayCount))
+                        data.append(LineChartElement(date: date, value: thisDayCount))
                     } else { //NOT completed on that day
                         //-1
                         let thisDayCount = max(previousDayCount-1, 0) //never goes under 0.
                         cumulativeCounts.append(thisDayCount)
-                        temp.append(LineChartElement(date: date, value: thisDayCount))
+                        data.append(LineChartElement(date: date, value: thisDayCount))
                     }
                 }
             }
         }
-
-        data = temp
     }
     
     func generateWeeklyData() {
-        var calendar = Calendar.current
-        var cumulativeCounts: [Int] = []
-        var temp: [LineChartElement] = []
-        
-        let currentTimeZone = TimeZone.current
-        calendar.timeZone = currentTimeZone
-        let todayComponents = calendar.dateComponents([.year, .month, .day], from: Date())
 
         if let lastMonday = lastMonday(using: calendar) {
             for i in 0..<15 {
-                if let date = calendar.date(byAdding: .day, value: 7*(i-14), to: lastMonday) {
-                    last15recurrences.append(date)
-//                    let previousDayCount = cumulativeCounts.last ?? 0
-//                    if habit.completed.contains(where: { calendar.isDate(date, inSameDayAs: $0) }) { //completed on that day
-//                        //+1
-//                        let thisDayCount = previousDayCount+1
-//                        cumulativeCounts.append(thisDayCount)
-//                        temp.append(LineChartElement(date: date, value: thisDayCount))
-//                    } else { //NOT completed on that day
-//                        //-1
-//                        let thisDayCount = max(previousDayCount-1, 0) //never goes under 0.
-//                        cumulativeCounts.append(thisDayCount)
-                        temp.append(LineChartElement(date: date, value: 0))
-//                    }
+                
+                // Monday = first day of week
+                // Sunday = last day of week
+                if let monday = calendar.date(byAdding: .day, value: 7*(i-14), to: lastMonday),
+                    let sunday = calendar.date(byAdding: .day, value: 6, to: monday) {
+                    last15recurrences.append(monday)
+                    
+                    let normalizedMonday = calendar.startOfDay(for: monday)
+                    let normalizedSunday = calendar.startOfDay(for: sunday)
+                    
+                    let previousWeekCount = cumulativeCounts.last ?? 0
+                    
+                    /// This `contains` statement checks if there is at least one date in the `completed` array
+                    /// that is between monday and sunday (inclusive), in that week.
+                    /// If so, that means that habit was completed in that week.
+                    if habit.completed.contains(where: { date in
+                        let normalizedDate = calendar.startOfDay(for: date)
+                        return normalizedMonday...normalizedSunday ~= normalizedDate
+                    }) {
+                        //+1
+                        let thisWeekCount = previousWeekCount+1
+                        cumulativeCounts.append(thisWeekCount)
+                        data.append(LineChartElement(date: monday, value: thisWeekCount))
+                    } else { //NOT completed on that week
+                        //-1
+                        let thisDayCount = max(previousWeekCount-1, 0) //Never goes under 0
+                        cumulativeCounts.append(thisDayCount)
+                        data.append(LineChartElement(date: monday, value: 0))
+                    }
                 }
             }
         }
-
-        data = temp
     }
 }
 
