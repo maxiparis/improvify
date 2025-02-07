@@ -81,7 +81,6 @@ class HabitGraphManager {
     }
     
     func generateWeeklyData() {
-
         if let lastMonday = lastMonday(using: calendar) {
             for i in 0..<15 {
                 

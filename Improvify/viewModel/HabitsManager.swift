@@ -232,15 +232,16 @@ class HabitsManager {
             
             if newHabit.recurrence == HabitRecurrence.daily.rawValue {
                 dailyHabits.append(newHabit)
+                NotificationManager.createDailyReminderFor(newHabit)
             } else {
                 weeklyHabits.append(newHabit)
+                NotificationManager.createWeeklyReminderFor(newHabit, on: [WeekdayNumber.monday.rawValue])
             }
             
             
             modelContext.insert(newHabit)
             try? modelContext.save()
             
-            NotificationManager.createDailyReminderFor(newHabit)
             presentAddHabitView = false
         }
     }
