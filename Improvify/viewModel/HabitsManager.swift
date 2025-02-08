@@ -81,13 +81,19 @@ class HabitsManager {
     }
     
     func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool {
-        for dateCompleted in habit.completed {
-            if calendar.isDate(date, inSameDayAs: dateCompleted) {
-                return true
+        if habit.isDaily {
+            for dateCompleted in habit.completed {
+                if calendar.isDate(date, inSameDayAs: dateCompleted) {
+                    return true
+                }
             }
+            return false
+        } else {
+            return habit.completed.contains(where: { habitCompletedDate in
+                // Is date in same week as habitCompletedDate
+                calendar.isDate(date, equalTo: habitCompletedDate, toGranularity: .weekOfYear)
+            })
         }
-        
-        return false
     }
     
     func createDate(from timeString: String) -> Date? {
@@ -196,7 +202,11 @@ class HabitsManager {
     func handleTappingOnHabitCheckmark(_ habit: Habit, on date: Date) {
         if habitIsCompleted(habit, on: date) {
             habit.completed.removeAll { datesCompleted in
-                calendar.isDate(datesCompleted, inSameDayAs: date)
+                if habit.isDaily {
+                    calendar.isDate(datesCompleted, inSameDayAs: date)
+                } else { // Weekly
+                    calendar.isDate(datesCompleted, equalTo: date, toGranularity: .weekOfYear)
+                }
             }
         } else {
             habit.completed.append(date)
