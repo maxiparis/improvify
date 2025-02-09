@@ -51,6 +51,7 @@ class NotificationManager {
                 print("🔔 Notification scheduled for habit \(habit.name)")
             }
         }
+        printAllNotifications()
     }
     
     
@@ -60,7 +61,7 @@ class NotificationManager {
     /// ...
     /// 6 = Friday
     /// 7 = Saturday
-    static func createWeeklyReminderFor(_ habit: Habit, on weekdays: [Int]) {
+    static func createWeeklyReminderFor(_ habit: Habit, on weekdays: [Int] = [WeekdayNumber.monday.rawValue]) {
         //TODO: test this function. It was written by chatgpt.
         
         let content = UNMutableNotificationContent()
@@ -77,7 +78,7 @@ class NotificationManager {
             
             let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true) // Weekly reminder
             
-            let request = UNNotificationRequest(identifier: "\(habit.id.uuidString)-\(weekday)", content: content, trigger: trigger)
+            let request = UNNotificationRequest(identifier: habit.id.uuidString, content: content, trigger: trigger)
             
             UNUserNotificationCenter.current().add(request) { error in
                 if let error = error {
@@ -86,13 +87,32 @@ class NotificationManager {
                     print("🔔 Weekly notification scheduled for \(habit.name) on weekday \(weekday)")
                 }
             }
+            printAllNotifications()
         }
     }
-
+    
+    static func printAllNotifications() {
+        print("--------------------------------------------------------")
+        print("Printing all Notifications")
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            requests.forEach { request in
+                print("\n>>> Notification")
+                print("Identifier: \(request.identifier)")
+                print("Content: \(request.content.body)")
+                print("Trigger: \(String(describing: request.trigger?.description ?? "No trigger"))")
+            }
+        }
+    }
     
     static func modifyDailyReminderFor(_ habit: Habit) {
         deleteDailyReminderFor(habit)
-        createDailyReminderFor(habit)
+        
+        habit.isDaily ? createDailyReminderFor(habit) : createWeeklyReminderFor(habit)
+    }
+    
+    static func removeAllNotifications() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        printAllNotifications()
     }
     
     static func deleteDailyReminderFor(_ habit: Habit) {

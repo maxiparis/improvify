@@ -34,24 +34,26 @@ struct HabitRow: View {
                         Button("Cancel", role: .cancel) { }
                     }
             }
-
-            VStack(alignment: .leading) {
-                Text(habit.name)
-                    .lineLimit(1)
-                    .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
-                    .foregroundStyle(habitsManager.habitIsCompleted(habit, on: date) ? .secondary : .primary)
-                    .onTapGesture {
-                        if !editMode!.wrappedValue.isEditing {
-                            habitsManager.graphSelectedHabit = habit
-                            habitsManager.presentGraphView = true
-                        }
-                    }
-                Text("\(habit.completeBy)")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            HStack {
+                VStack(alignment: .leading) {
+                    Text(habit.name)
+                        .lineLimit(1)
+                        .strikethrough(habitsManager.habitIsCompleted(habit, on: date))
+                        .foregroundStyle(habitsManager.habitIsCompleted(habit, on: date) ? .secondary : .primary)
+                    Text("\(habit.completeBy)")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                if !editMode!.wrappedValue.isEditing {
+                    habitsManager.graphSelectedHabit = habit
+                    habitsManager.presentGraphView = true
+                }
             }
             
-            Spacer()
             
             Image(systemName: isEditing ? ("pencil.circle") : (habitsManager.habitIsCompleted(habit, on: date) ? "checkmark.circle.fill" : "circle"))
                 .foregroundStyle(isEditing ? .blue : .orange)
