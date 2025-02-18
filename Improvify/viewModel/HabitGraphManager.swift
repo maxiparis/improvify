@@ -27,7 +27,7 @@ class HabitGraphManager {
         return newCal
     }
     var cumulativeCounts: [Int] = []
-
+    var showPopover = false
 
     //MARK: - Init
     init(habit: Habit) {
