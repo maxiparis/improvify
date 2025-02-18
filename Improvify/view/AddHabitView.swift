@@ -41,7 +41,7 @@ struct AddHabitView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        habitManager.createNewHabit()
+                        habitManager.handleCreateNewHabit()
                     }
                     .disabled(habitManager.newHabitName.isEmpty)
                 }

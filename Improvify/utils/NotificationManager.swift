@@ -97,10 +97,12 @@ class NotificationManager {
         UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
             requests.forEach { request in
                 print("\n>>> Notification")
-                print("Identifier: \(request.identifier)")
-                print("Content: \(request.content.body)")
-                print("Trigger: \(String(describing: request.trigger?.description ?? "No trigger"))")
+                print("   Identifier: \(request.identifier)")
+                print("   Content: \(request.content.body)")
+                print("   Trigger: \(String(describing: request.trigger?.description ?? "No trigger"))")
             }
+            print("\nEND of Printing all Notifications")
+            print("--------------------------------------------------------\n\n")
         }
     }
     

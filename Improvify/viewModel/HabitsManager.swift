@@ -126,6 +126,7 @@ class HabitsManager {
         SoundManager.shared.playSound(named: "success-sound")
     }
     
+    
     //MARK: - Data Handling
     
     func fetchData() {
@@ -161,6 +162,48 @@ class HabitsManager {
         try? modelContext.save()
     }
     
+    
+    func createHabit(_ habit: Habit) {
+        withAnimation {
+            if habit.recurrence == HabitRecurrence.daily.rawValue {
+                dailyHabits.append(habit)
+            } else {
+                weeklyHabits.append(habit)
+            }
+            
+            createNotifications(for: habit)
+            
+            modelContext.insert(habit)
+            try? modelContext.save()
+            
+            presentAddHabitView = false
+        }
+    }
+    
+    func createNotifications(for habit: Habit) {
+        if habit.recurrence == HabitRecurrence.daily.rawValue {
+            NotificationManager.createDailyReminderFor(habit)
+        } else {
+            NotificationManager.createWeeklyReminderFor(habit, on: [WeekdayNumber.monday.rawValue])
+        }
+    }
+    
+    func createNotificationsForAllHabits() {
+        for habit in dailyHabits {
+            createNotifications(for: habit)
+        }
+        
+        for habit in weeklyHabits {
+            createNotifications(for: habit)
+        }
+    }
+    
+    
+    /// Used only for debugging. For situations when the notifications are off.
+    func resetHabitsNotifications() {
+        NotificationManager.removeAllNotifications()
+        createNotificationsForAllHabits()
+    }
     
     
     //MARK: - User Intents
@@ -235,34 +278,19 @@ class HabitsManager {
             NotificationManager.deleteDailyReminderFor(habitRemoved)
         }
     }
-    
-    func createNewHabit() {
-        withAnimation {
-            let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
-            
-            if newHabit.recurrence == HabitRecurrence.daily.rawValue {
-                dailyHabits.append(newHabit)
-                NotificationManager.createDailyReminderFor(newHabit)
-            } else {
-                weeklyHabits.append(newHabit)
-                NotificationManager.createWeeklyReminderFor(newHabit, on: [WeekdayNumber.monday.rawValue])
-            }
-            
-            
-            modelContext.insert(newHabit)
-            try? modelContext.save()
-            
-            presentAddHabitView = false
-        }
-    }
-    
+
     func handleEditHabit() {
         habitOnEdit!.name = editHabitName
         habitOnEdit!.completeByTime = editHabitTime
         NotificationManager.modifyDailyReminderFor(habitOnEdit!)
         
-        
         presentEditHabitView = false
+    }
+    
+    func handleCreateNewHabit() {
+        let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
+
+        createHabit(newHabit)
     }
 }
 
