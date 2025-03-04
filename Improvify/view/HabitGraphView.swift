@@ -10,7 +10,7 @@ import SwiftUI
 
 struct HabitGraphView: View {
     @Bindable var manager: HabitGraphManager
-
+    
     var body: some View {
         List {
             Chart {
@@ -67,7 +67,6 @@ struct HabitGraphView: View {
             .popover(
                 isPresented: $manager.showPopover,
                 attachmentAnchor: .point(.leading),
-//                attachmentAnchor: .point(.init(x: -100, y: 0)),
                 content: {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 15) {
@@ -75,11 +74,11 @@ struct HabitGraphView: View {
                                 .font(.system(size: 20, weight: .bold))
                             
                             Text("""
-                                At Improvify, we focus on progress ✅📈, not streaks ❌🔥.
+                                At Improvify, we focus on progress, not streaks.
                                 
                                 The graph below shows your progress over the last 15 days. Each point represents a day or a week, depending on the habit type. When you complete your habit, the count increases by one. If you miss it, the count decreases by one.
                                 
-                                Focus on the direction of the graph! If it’s trending up 📈, you’re improving 🎉. If it’s going down 📉, reflect on your habits and look for ways to adjust 🔄.
+                                Focus on the direction of the graph! If it’s trending up, you’re improving 🎉. If it’s going down, reflect on your habits and look for ways to adjust 🔄.
                                 """)
                             .font(.callout)
                             .fixedSize(horizontal: false, vertical: true) // Needed to allow text wrapping.

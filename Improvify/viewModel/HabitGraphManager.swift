@@ -101,7 +101,7 @@ class HabitGraphManager {
                         //-1
                         let thisDayCount = max(previousWeekCount-1, 0) //Never goes under 0
                         cumulativeCounts.append(thisDayCount)
-                        data.append(LineChartElement(date: recurrentWeekStartDay, value: 0))
+                        data.append(LineChartElement(date: recurrentWeekStartDay, value: thisDayCount))
                     }
                 }
             }
