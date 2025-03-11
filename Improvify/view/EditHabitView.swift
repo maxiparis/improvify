@@ -9,6 +9,8 @@ import SwiftUI
 
 struct EditHabitView: View {
     @Bindable var habitManager: HabitsManager
+    @Environment(\.editMode) private var editMode
+
     
     var body: some View {
         NavigationStack {
@@ -17,20 +19,20 @@ struct EditHabitView: View {
                     TextField("Name", text: $habitManager.editHabitName)
                 }
                 
-                Section(header: Text("Complete by:")) {
+                Section(header: Text("Reminder at:")) {
                     DatePicker(
                         "Select Time",
                         selection: $habitManager.editHabitTime,
                         displayedComponents: .hourAndMinute
                     )
                     .datePickerStyle(WheelDatePickerStyle())
+                    .labelsHidden()
                 }
             }
             .navigationTitle(Text("Edit Habit"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        //TODO: work on here
                         habitManager.handleEditHabit()
                     }
                 }
