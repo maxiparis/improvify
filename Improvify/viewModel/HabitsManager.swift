@@ -7,35 +7,31 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
+
+let DAILY_RAW_VALUE = HabitRecurrence.daily.rawValue
+let WEEKLY_RAW_VALUE = HabitRecurrence.weekly.rawValue
 
 @Observable
 class HabitsManager {
     
     //MARK: - Properties
     private var modelContext: ModelContext
-    var habits: [Habit] = []
+    var dailyHabits: [Habit] = []
+    var weeklyHabits: [Habit] = []
+    
     var dateSelected: Date {
         didSet {
-            dateString = dateFormatter.string(from: dateSelected)
+            dateString = dateSelected.toDateString()
         }
     }
     let calendar = Calendar.current
     var dateString: String = ""
-    var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMMM d"
-        return formatter
-    }
-    var timeFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a" // Use 12-hour format with AM/PM
-        formatter.locale = Locale(identifier: "en_US_POSIX") // Set the locale to ensure consistent formatting
-        return formatter
-    }
     
     var presentAddHabitView = false
     var newHabitName = ""
     var newHabitTime: Date = Date()
+    var newHabitRecurrence: HabitRecurrence = .daily
     
     var presentEditHabitView = false
     var habitOnEdit: Habit? {
@@ -49,20 +45,27 @@ class HabitsManager {
     var editHabitName = ""
     var editHabitTime = Date()
     
+    var presentGraphView = false
+    var graphSelectedHabit: Habit?
+    
+    var currentTab = 0 // Controls the current tab in the tabView
+    
+    var isDateAnimating = false // Controls the animation of the Date string, specially for when we are in today and we tap "Today"
+    
+    let hapticGenerator = UIImpactFeedbackGenerator(style: .light)
+        
     //MARK: - Init
-
+    
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        
         
         dateSelected = Date()
         formatDateString()
         
         fetchData()
         
-        if habits.isEmpty {
+        if dailyHabits.isEmpty {
             print("habits are empty")
-            createDefaultData()
             fetchData()
         }
     }
@@ -70,21 +73,27 @@ class HabitsManager {
     //MARK: - Util
     
     func formatDateString() {
-        dateString = dateFormatter.string(from: dateSelected)
+        dateString = dateSelected.toDateString()
     }
     
     func formatTime(from date: Date) -> String {
-        return timeFormatter.string(from: date).lowercased()
+        return date.toTimeString().lowercased()
     }
     
-    func habitIsCompleted(_ habit: Habit) -> Bool {
-        for dateCompleted in habit.completed {
-            if calendar.isDate(dateSelected, inSameDayAs: dateCompleted) {
-                return true
+    func habitIsCompleted(_ habit: Habit, on date: Date) -> Bool {
+        if habit.isDaily {
+            for dateCompleted in habit.completed {
+                if calendar.isDate(date, inSameDayAs: dateCompleted) {
+                    return true
+                }
             }
+            return false
+        } else {
+            return habit.completed.contains(where: { habitCompletedDate in
+                // Is date in same week as habitCompletedDate
+                calendar.isDate(date, equalTo: habitCompletedDate, toGranularity: .weekOfYear)
+            })
         }
-        
-        return false
     }
     
     func createDate(from timeString: String) -> Date? {
@@ -95,14 +104,46 @@ class HabitsManager {
         return date
     }
     
+    func previousDay(_ date: Date) -> Date {
+        Calendar.current.date(byAdding: .day, value: -1, to: dateSelected)!
+    }
+    
+    func nextDay(_ date: Date) -> Date {
+        Calendar.current.date(byAdding: .day, value: 1, to: dateSelected)!
+    }
+    
+    func createSpecificTimeDate(hour: Int, minute: Int) -> Date? {
+        var components = DateComponents()
+        components.hour = hour
+        components.minute = minute
+        
+        // Use the current calendar to generate the date
+        return Calendar.current.date(from: components)
+    }
+    
+    func completedHabitFeedback() {
+        hapticGenerator.impactOccurred()
+        SoundManager.shared.playSound(named: "success-sound")
+    }
+    
+    
     //MARK: - Data Handling
     
     func fetchData() {
         try? modelContext.save()
         
         do {
-            let habitsDescriptot = FetchDescriptor<Habit>(sortBy: [SortDescriptor(\.name)])
-            habits = try modelContext.fetch(habitsDescriptot)
+            let dailyHabitsDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate<Habit>{$0.recurrence == DAILY_RAW_VALUE},
+                sortBy: [SortDescriptor(\.completeByTime)]
+            )
+            dailyHabits = try modelContext.fetch(dailyHabitsDescriptor)
+            
+            let weeklyHabitsDescriptor = FetchDescriptor<Habit>(
+                predicate: #Predicate<Habit> { $0.recurrence == WEEKLY_RAW_VALUE },
+                sortBy: [SortDescriptor(\.completeByTime)]
+            )
+            weeklyHabits = try modelContext.fetch(weeklyHabitsDescriptor)
         } catch {
             print("failed to fetch data")
         }
@@ -110,8 +151,8 @@ class HabitsManager {
     
     func createDefaultData() {
         let habitsToAdd = [
-            Habit(name: "Do Exercisse", completeBy: "01:00pm", completed: [Date()]),
-            Habit(name: "Pray", completeBy: "08:00am"),
+            Habit(name: "Do Exercisse", completeByDate: createSpecificTimeDate(hour: 13, minute: 0) ?? Date(), completed: [Date()]),
+            Habit(name: "Pray", completeByDate: createSpecificTimeDate(hour: 8, minute: 0) ?? Date())
         ]
         
         for habit in habitsToAdd {
@@ -120,63 +161,136 @@ class HabitsManager {
         
         try? modelContext.save()
     }
-
-
+    
+    
+    func createHabit(_ habit: Habit) {
+        withAnimation {
+            if habit.recurrence == HabitRecurrence.daily.rawValue {
+                dailyHabits.append(habit)
+            } else {
+                weeklyHabits.append(habit)
+            }
+            
+            createNotifications(for: habit)
+            
+            modelContext.insert(habit)
+            try? modelContext.save()
+            
+            presentAddHabitView = false
+        }
+    }
+    
+    func createNotifications(for habit: Habit) {
+        if habit.recurrence == HabitRecurrence.daily.rawValue {
+            NotificationManager.createDailyReminderFor(habit)
+        } else {
+            NotificationManager.createWeeklyReminderFor(habit, on: [WeekdayNumber.monday.rawValue])
+        }
+    }
+    
+    func createNotificationsForAllHabits() {
+        for habit in dailyHabits {
+            createNotifications(for: habit)
+        }
+        
+        for habit in weeklyHabits {
+            createNotifications(for: habit)
+        }
+    }
+    
+    
+    /// Used only for debugging. For situations when the notifications are off.
+    func resetHabitsNotifications() {
+        NotificationManager.removeAllNotifications()
+        createNotificationsForAllHabits()
+    }
+    
     
     //MARK: - User Intents
     func moveDayForward() {
-        if let nextDay = Calendar.current.date(byAdding: .day, value: 1, to: dateSelected) {
-            dateSelected = nextDay
-        } else {
-            print("error moving day forward")
-        }
+        currentTab = 1
     }
     
     func moveDayBackward() {
-        if let previousDay = Calendar.current.date(byAdding: .day, value: -1, to: dateSelected) {
-            dateSelected = previousDay
+        currentTab = -1
+    }
+    
+    func goToToday(todayAnimated: Bool = true) {
+        withAnimation {
+            let today = Date()
+            if Calendar.current.isDate(dateSelected, inSameDayAs: today) {
+                if todayAnimated {
+                    withAnimation {
+                        isDateAnimating = true
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        withAnimation(.easeIn(duration: 0.2)) {
+                            self.isDateAnimating = false // Shrink back automatically
+                        }
+                    }
+                }
+            } else {
+                if dateSelected < today { //we are in the past
+                    dateSelected = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+                    moveDayForward()
+                } else { //we are in the future
+                    dateSelected = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+                    moveDayBackward()
+                }
+                
+            }
+        }
+    }
+    
+    func handleTappingOnHabitCheckmark(_ habit: Habit, on date: Date) {
+        if habitIsCompleted(habit, on: date) {
+            habit.completed.removeAll { datesCompleted in
+                if habit.isDaily {
+                    calendar.isDate(datesCompleted, inSameDayAs: date)
+                } else { // Weekly
+                    calendar.isDate(datesCompleted, equalTo: date, toGranularity: .weekOfYear)
+                }
+            }
         } else {
-            print("error moving day backwards")
+            habit.completed.append(date)
+            completedHabitFeedback()
+        }
+    }
+    
+    func handleDelete(habit: Habit) {
+        withAnimation {
+            let removed: Habit?
+            
+            if habit.recurrence == DAILY_RAW_VALUE {
+                removed = dailyHabits.remove(at: dailyHabits.firstIndex(of: habit)!)
+            } else {
+                removed = weeklyHabits.remove(at: weeklyHabits.firstIndex(of: habit)!)
+            }
+            
+            guard let habitRemoved = removed else {
+                print("habit to be be removed was not found.")
+                return
+            }
+            
+            modelContext.delete(habitRemoved)
+            try? modelContext.save()
+            
+            NotificationManager.deleteDailyReminderFor(habitRemoved)
         }
     }
 
-    func goToToday() {
-        dateSelected = Date()
+    func handleEditHabit() {
+        habitOnEdit!.name = editHabitName
+        habitOnEdit!.completeByTime = editHabitTime
+        NotificationManager.modifyDailyReminderFor(habitOnEdit!)
+        
+        presentEditHabitView = false
     }
     
-    func handleTappingOnHabit(_ habit: Habit) {
-        
-        if habitIsCompleted(habit) {
-            habit.completed.removeAll { date in
-                calendar.isDate(date, inSameDayAs: dateSelected)
-            }
-        } else {
-            habit.completed.append(dateSelected)
-        }
-    }
-    
-    func handleOnDelete(at index: IndexSet) {
-        if let position = index.first {
-            let removed = habits.remove(at: position)
-            
-            modelContext.delete(removed)
-            try? modelContext.save()
-        }
-    }
-    
-//    func handleOnMove(from source: IndexSet, to destination: Int) {
-//        habits.move(fromOffsets: source, toOffset: destination)
-//        try? modelContext.save()
-//    }
-    
-    func createNewHabit() {
-        let newHabit = Habit(name: newHabitName, completeBy: formatTime(from: newHabitTime))
-        habits.append(newHabit)
-        
-        modelContext.insert(newHabit)
-        try? modelContext.save()
-        
-        presentAddHabitView = false
+    func handleCreateNewHabit() {
+        let newHabit = Habit(name: newHabitName, completeByDate: newHabitTime, recurrence: newHabitRecurrence.rawValue)
+
+        createHabit(newHabit)
     }
 }
 

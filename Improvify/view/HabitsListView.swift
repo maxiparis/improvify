@@ -10,103 +10,21 @@ import SwiftData
 
 struct HabitsListView: View {
     @Bindable var habitsManager: HabitsManager
-    
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                
-                //Main Content
-                List {
-                    Section {
-                        HStack {
-                            
-                            Image(systemName: "arrow.left").onTapGesture {
-                                withAnimation {
-                                    habitsManager.moveDayBackward()
-                                }
-                            }
-                            
-                            
-                            Spacer()
-                            Text(habitsManager.dateString)
-                                .font(.title3)
-                                .onTapGesture {
-                                    withAnimation {
-                                        habitsManager.goToToday()
-                                    }
-                                    
-                                }
-                            Spacer()
-                            
-                            Image(systemName: "arrow.right")
-                                .onTapGesture {
-                                    withAnimation {
-                                        habitsManager.moveDayForward()
-                                    }
-                                }
-                        }
-                    }
-                    
-                    //MARK: - List of Habits
-                    Section {
-                        ForEach(habitsManager.habits) { habit in
-                            HStack {
-                                Image(systemName: habitsManager.habitIsCompleted(habit) ? "checkmark.square" : "square")
-                                    .font(.system(size: 25))
-                                    .onTapGesture {
-                                        withAnimation {
-                                            habitsManager.handleTappingOnHabit(habit)
-                                        }
-                                    }
-                                
-                                Text("\(habit.name) - \(habit.completeBy)")
-                                    .strikethrough(habitsManager.habitIsCompleted(habit))
-                                    .foregroundStyle(habitsManager.habitIsCompleted(habit) ? .secondary : .primary)
-                                    .onTapGesture {
-                                        //TODO: open graph
-                                    }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "pencil")
-                                    .onTapGesture {
-                                        //TODO: edit
-                                        habitsManager.habitOnEdit = habit
-                                        habitsManager.presentEditHabitView = true
-
-                                    }
-                            }
-                            
-                        }
-                        .onDelete(perform: habitsManager.handleOnDelete)
-                        //                        .onMove(perform: habitsManager.handleOnMove)
-                    }
-                }
-
-                
-                // Phrase
-                
-                VStack {
-                    Spacer()
-                    VStack {
-                        Text("Habit is the intersection of knowledge (what to do), skill (how to do), and desire (want to do).")
-                            .padding(.horizontal, 20)
-                        HStack {
-                            Spacer()
-                            Text("- Stephen R. Covey")
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                    .padding()
-                    .background {
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.secondary.opacity(0.1))
-                    }
-                }
-                .foregroundStyle(.secondary)
-                .padding()
-            }
-            .navigationTitle(Text("Improvify"))
+                InfinitePageView(
+                    selection: $habitsManager.dateSelected,
+                    before: habitsManager.previousDay,
+                    after: habitsManager.nextDay,
+                    view: { date in
+                        DateAndHabitsView(habitsManager: habitsManager, date: date)
+                    },
+                    currentTab: $habitsManager.currentTab
+                )
+//            .ignoresSafeArea(edges: .bottom) //This line introduced the bug where the arrows wouldn't work unless there were external arrows
+            .navigationTitle("Improvify")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     EditButton()
@@ -118,6 +36,12 @@ struct HabitsListView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    
+                    Button {
+                        habitsManager.goToToday()
+                    } label: {
+                        Text("Today")
+                    }
                 }
             }
             .sheet(isPresented: $habitsManager.presentAddHabitView) {
@@ -126,28 +50,22 @@ struct HabitsListView: View {
             .sheet(isPresented: $habitsManager.presentEditHabitView) {
                 EditHabitView(habitManager: habitsManager)
             }
+            .navigationDestination(isPresented: $habitsManager.presentGraphView) {
+                if let habitSelected = habitsManager.graphSelectedHabit {
+                    HabitGraphView(manager: HabitGraphManager(habit: habitSelected))
+                }
+            }
+            .background(Color("mainBackground"))
         }
-    }
-}
 
-
-
-
-struct iOSCheckboxToggleStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        // 1
-        Button(action: {
-            
-            // 2
-            configuration.isOn.toggle()
-            
-        }, label: {
-            HStack {
-                // 3
-                Image(systemName: configuration.isOn ? "checkmark.square" : "square")
-                
-                configuration.label
+        .onChange(of: scenePhase, { oldValue, newValue in
+            if newValue == .active {
+                habitsManager.goToToday(todayAnimated: false)
             }
         })
+        .onAppear {
+            NotificationManager.requestAuthorization()
+            NotificationManager.printAllNotifications()
+        }
     }
 }
